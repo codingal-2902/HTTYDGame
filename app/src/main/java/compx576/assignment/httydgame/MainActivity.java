@@ -11,8 +11,6 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
-    protected int savedPage;
-    private String spName = "prefs";
     protected SharedPreferences sharedPreferences;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -22,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home_screen);
         System.out.println("onCreate from MainActivity was called.");
 
+        String spName = "prefs";
         sharedPreferences = getSharedPreferences(spName, MODE_PRIVATE);
 
         Button startGame = findViewById(R.id.start_game);
@@ -34,23 +33,5 @@ public class MainActivity extends AppCompatActivity {
             }
             startActivity(game);
         });
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        System.out.println("onPause from MainActivity was called.");
-//        Bundle bundle = getIntent().getExtras();
-//        assert bundle != null;
-//        System.out.println(bundle.get("pageNo"));
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        System.out.println("onStop from MainActivity was called.");
-//        Bundle bundle = getIntent().getExtras();
-//        assert bundle != null;
-//        System.out.println(bundle.get("pageNo"));
     }
 }

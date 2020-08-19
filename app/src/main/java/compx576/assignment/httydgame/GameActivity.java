@@ -105,17 +105,12 @@ public class GameActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
 
         assert bundle != null;
-        currentPage = pages.get(bundle.getInt("savedPage", 0));
 
-//        if (!sharedPreferences.contains("pageNo")) {
-//            currentPage = pages.get(0);
-//        } else {
-//            pageNo = sharedPreferences.getInt("pageNo", 0);
-//            currentPage = pages.get(pageNo);
-//            if (pageNo != 0) {
-//                returnButton.setVisibility(View.VISIBLE);
-//            }
-//        }
+        pageNo = bundle.getInt("savedPage", 0);
+        currentPage = pages.get(pageNo);
+        if (pageNo > 0) {
+            returnButton.setVisibility(View.VISIBLE);
+        }
 
         background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
         speaker.setText(Html.fromHtml(currentPage.getCharName()));
