@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="list">
+        <item>@drawable/isle_of_berk</item>
+        <item>@drawable/isle_of_berk2</item>
+        <item>@drawable/background_3</item>
+        <item>@drawable/forge_distant</item>
+        <item>@drawable/forge_interior</item>
+        <item>@drawable/forge_hard_at_work</item>
+    </array>
+</resources>

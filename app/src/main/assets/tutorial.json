@@ -1,0 +1,47 @@
+{"scenes":
+	[
+		{
+		"imageIDIndex":0,
+		"speaker":"Narrator",
+		"dialogue":["This is Berk.<br/><br/>",
+		"It's twelve days north of Hopeless, and a few degrees south of Freezing to Death. It's located solidly on the Meridian of Misery."],
+		"isDivergencePoint": 0
+		},
+		{
+			"imageIDIndex":1,
+			"speaker":"Narrator",
+			"dialogue":["My village. In a word, sturdy.<br/>",
+			"It's been here for seven generations, but every single building is new.<br/>",
+			"We have fishing, hunting, and a charming view of the sunset…<br/>",
+			"The only problem are the <i>pests.</i>"],
+			"isDivergencePoint": 0
+		},
+		{
+			"imageIDIndex":1,
+			"speaker":"Narrator",
+			"dialogue":["You see, some places have mice or mosquitoes.<br/>",
+			"We have…"],
+			"isDivergencePoint": 0
+		},
+		{
+			"imageIDIndex":2,
+			"speaker":"Narrator",
+			"dialogue":["<i>Dragons.</i>"],
+			"isDivergencePoint": 0
+		},
+		{
+			"imageIDIndex":4,
+			"speaker":"Narrator",
+			"dialogue":["But they're not here right now.<br/>",
+						"In fact, it's been a few weeks since the last dragon raid, so everyone's on tenterhooks waiting for the next one.<br/>",
+						"Meaning the best place for me to be right now is here - the smithy."],
+			"isDivergencePoint": 0
+		},
+		{
+			"imageIDIndex":4,
+			"speaker":"<i>ambient</i>",
+			"dialogue":["<i>It's 2 months before that fateful night.<br/>But even at this point, things can change.</i>"],
+			"isDivergencePoint": 0
+		}
+	]
+}
