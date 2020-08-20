@@ -2,7 +2,11 @@ package compx576.assignment.httydgame;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -191,5 +195,34 @@ public class GameActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.N)
     protected NPC getNPC(String name) {
         return characters.stream().filter(e->e.getCharName().equals(name)).findAny().orElse(null);
+    }
+
+    static class ChoiceDialog extends DialogFragment {
+        public ChoiceDialog() {
+
+        }
+
+        static compx576.assignment.httydgame.ChoiceDialog newInstance(Choice choice) {
+            compx576.assignment.httydgame.ChoiceDialog box = new compx576.assignment.httydgame.ChoiceDialog();
+            Bundle args = new Bundle();
+            args.putParcelable("choice", choice);
+            return box;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder choiceDialogBuilder = new AlertDialog.Builder(getActivity());
+            Choice choiceDetails = savedInstanceState.getParcelable("choice");
+            choiceDialogBuilder.setTitle("Time to make a decision.");
+
+            assert choiceDetails != null;
+            choiceDialogBuilder.setMessage(choiceDetails.getText());
+            choiceDialogBuilder.setNeutralButton(choiceDetails.getChoice1(), (dialogInterface, i) -> {
+                
+            }).setNeutralButton(choiceDetails.getChoice2(), (dialogInterface, i) -> {
+
+            });
+            return choiceDialogBuilder.create();
+        }
     }
 }

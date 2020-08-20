@@ -20,7 +20,12 @@ public class ChoiceDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-        return alertDialogBuilder.create();
+        AlertDialog.Builder choiceDialogBuilder = new AlertDialog.Builder(getActivity());
+        Choice choiceDetails = savedInstanceState.getParcelable("choice");
+        choiceDialogBuilder.setTitle("Time to make a decision.");
+
+
+
+        return choiceDialogBuilder.create();
     }
 }
