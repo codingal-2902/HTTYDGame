@@ -103,9 +103,7 @@ public class GameActivity extends AppCompatActivity {
         }
 
         Bundle bundle = getIntent().getExtras();
-
         assert bundle != null;
-
         pageNo = bundle.getInt("savedPage", 0);
         currentPage = pages.get(pageNo);
         if (pageNo > 0) {

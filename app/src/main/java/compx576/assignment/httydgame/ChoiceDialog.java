@@ -11,10 +11,10 @@ public class ChoiceDialog extends DialogFragment {
 
     }
 
-    static ChoiceDialog newInstance(String dialogue) {
+    static ChoiceDialog newInstance(Choice choice) {
         ChoiceDialog box = new ChoiceDialog();
         Bundle args = new Bundle();
-        args.putString("choiceText", dialogue);
+        args.putParcelable("choice", choice);
         return box;
     }
 
@@ -23,6 +23,4 @@ public class ChoiceDialog extends DialogFragment {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
         return alertDialogBuilder.create();
     }
-
-
 }

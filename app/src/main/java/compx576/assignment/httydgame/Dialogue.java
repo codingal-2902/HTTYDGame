@@ -39,6 +39,7 @@ public class Dialogue implements Parcelable {
         this.bgImage = in.readInt();
         this.position = in.readInt();
         this.isCurrentPage = in.readBoolean();
+        this.hasChoiceAttached = in.readBoolean();
     }
 
     public static final Creator<Dialogue> CREATOR = new Creator<Dialogue>() {
