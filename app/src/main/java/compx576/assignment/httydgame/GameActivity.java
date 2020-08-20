@@ -218,7 +218,7 @@ public class GameActivity extends AppCompatActivity {
             assert choiceDetails != null;
             choiceDialogBuilder.setMessage(choiceDetails.getText());
             choiceDialogBuilder.setNeutralButton(choiceDetails.getChoice1(), (dialogInterface, i) -> {
-                
+
             }).setNeutralButton(choiceDetails.getChoice2(), (dialogInterface, i) -> {
 
             });
