@@ -42,6 +42,21 @@
 			"speaker":"<i>ambient</i>",
 			"dialogue":["<i>It's 2 months before that fateful night.<br/>But even at this point, things can change.</i>"],
 			"isDivergencePoint": 0
+		},
+		{
+			"imageIDIndex":4,
+			"speaker":"Narrator",
+			"dialogue":["The Mangler sits half-done in the shop's corner.<br/>",
+				"Hiccup spies his missing sketchbook lying on a nearby bench.<br/>",
+				"What does he do next?"],
+			"isDivergencePoint": 1,
+			"choice": {
+				"text": "The Mangler sits half-done in the shop's back corner. On a bench near it, Hiccup spots his missing sketchbook.<br/>The gears in his head start to turn at the sight of each.<br/>What does he choose to work on?",
+				"ChoiceOne": "Keep working on Mangler.",
+				"ChoiceTwo": "Come up with something new.",
+				"charNames": ["Village"],
+				"relChange": [0]
+			}
 		}
 	]
 }

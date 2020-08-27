@@ -10,18 +10,22 @@ public class Choice implements Parcelable {
     private String choice1;
     private String choice2;
     private List<NPC> affectedChar;
-    private int[] levelChange;
+    private long[] levelChange;
 
     protected Choice(Parcel in) {
         text = in.readString();
         choice1 = in.readString();
         choice2 = in.readString();
         affectedChar = in.createTypedArrayList(NPC.CREATOR);
-        levelChange = in.createIntArray();
+        levelChange = in.createLongArray();
     }
 
-    public void setText(String text) {
+    public Choice(String text, String choice1, String choice2, List<NPC> affectedChars, long[] levelChange) {
         this.text = text;
+        this.choice1 = choice1;
+        this.choice2 = choice2;
+        this.affectedChar = affectedChars;
+        this.levelChange = levelChange;
     }
 
     public void setChoice1(String choice1) {
@@ -36,12 +40,8 @@ public class Choice implements Parcelable {
         this.affectedChar = affectedChar;
     }
 
-    public void setLevelChange(int[] levelChange) {
+    public void setLevelChange(long[] levelChange) {
         this.levelChange = levelChange;
-    }
-
-    public String getText() {
-        return this.text;
     }
 
     public String getChoice1() {
@@ -56,7 +56,7 @@ public class Choice implements Parcelable {
         return this.affectedChar;
     }
 
-    public int[] getLevelChange() {
+    public long[] getLevelChange() {
         return this.levelChange;
     }
 
@@ -83,6 +83,14 @@ public class Choice implements Parcelable {
         parcel.writeString(choice1);
         parcel.writeString(choice2);
         parcel.writeTypedList(affectedChar);
-        parcel.writeIntArray(levelChange);
+        parcel.writeLongArray(levelChange);
+    }
+
+    public String getText() {
+        return this.text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }

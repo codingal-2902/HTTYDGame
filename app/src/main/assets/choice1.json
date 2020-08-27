@@ -1,10 +1,14 @@
 {"choice":  [{
-    "text": [""],
-    "ChoiceOne": "",
-    "ChoiceTwo": ""
+    "text": "The Mangler sits half-done in the shop's back corner. On a bench near it, Hiccup spots his missing sketchbook.<br/>The gears in his head start to turn at the sight of each.<br/>What does he choose to work on?",
+    "ChoiceOne": "Keep working on Mangler.",
+    "ChoiceTwo": "Come up with something new.",
+    "charNames": ["Village"],
+    "relChange": [0]
 },
   {
-    "text": [""],
-    "ChoiceOne": "",
-    "ChoiceTwo": ""
+    "text": "Hiccup picks up his sketchbook and looks around the shop for inspiration.<br/>A discarded bucket makes him think of the fire brigade, and how ineffective they were in the last raid.<br/>Then again, his track record for helping the village is not good.",
+    "ChoiceOne": "Find a possible solution to this problem.",
+    "ChoiceTwo": "Work on different version of the Mangler.",
+    "charNames": ["Village", "Stoick"],
+    "relChange": [30, 30, -10, -10]
   }]}
