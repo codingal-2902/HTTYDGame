@@ -51,12 +51,12 @@
 				"What does he do next?"],
 			"isDivergencePoint": 1,
 			"choice": {
-				"text": "The Mangler sits half-done in the shop's back corner. On a bench near it, Hiccup spots his missing sketchbook.<br/>The gears in his head start to turn at the sight of each.<br/>What does he choose to work on?",
 				"ChoiceOne": "Keep working on Mangler.",
 				"ChoiceTwo": "Come up with something new.",
 				"charNames": ["Village"],
-				"relChange": [0]
-			}
+				"relChange": [0],
+				"fileToOpen":  ["chapter1.json", "tutorialDivergence1/choice1.json"]
+			},
 		}
 	]
 }

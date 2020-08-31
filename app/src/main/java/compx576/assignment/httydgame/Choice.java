@@ -6,26 +6,26 @@ import android.os.Parcelable;
 import java.util.List;
 
 public class Choice implements Parcelable {
-    private String text;
     private String choice1;
     private String choice2;
     private List<NPC> affectedChar;
     private long[] levelChange;
+    private String[] nextFile;
 
     protected Choice(Parcel in) {
-        text = in.readString();
         choice1 = in.readString();
         choice2 = in.readString();
         affectedChar = in.createTypedArrayList(NPC.CREATOR);
         levelChange = in.createLongArray();
+        nextFile = in.createStringArray();
     }
 
-    public Choice(String text, String choice1, String choice2, List<NPC> affectedChars, long[] levelChange) {
-        this.text = text;
+    public Choice(String choice1, String choice2, List<NPC> affectedChars, long[] levelChange, String[] nextFile) {
         this.choice1 = choice1;
         this.choice2 = choice2;
         this.affectedChar = affectedChars;
         this.levelChange = levelChange;
+        this.nextFile = nextFile;
     }
 
     public void setChoice1(String choice1) {
@@ -44,6 +44,10 @@ public class Choice implements Parcelable {
         this.levelChange = levelChange;
     }
 
+    public void setNextFile(String[] nextFile) {
+        this.nextFile = nextFile;
+    }
+
     public String getChoice1() {
         return this.choice1;
     }
@@ -58,6 +62,10 @@ public class Choice implements Parcelable {
 
     public long[] getLevelChange() {
         return this.levelChange;
+    }
+
+    public String[] getNextFile() {
+        return this.nextFile;
     }
 
     public static final Creator<Choice> CREATOR = new Creator<Choice>() {
@@ -79,18 +87,10 @@ public class Choice implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(text);
         parcel.writeString(choice1);
         parcel.writeString(choice2);
         parcel.writeTypedList(affectedChar);
         parcel.writeLongArray(levelChange);
-    }
-
-    public String getText() {
-        return this.text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
+        parcel.writeStringArray(nextFile);
     }
 }

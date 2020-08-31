@@ -7,5 +7,6 @@
         <item>@drawable/forge_distant</item>
         <item>@drawable/forge_interior</item>
         <item>@drawable/forge_hard_at_work</item>
+        <item>@drawable/mangler</item>
     </array>
 </resources>

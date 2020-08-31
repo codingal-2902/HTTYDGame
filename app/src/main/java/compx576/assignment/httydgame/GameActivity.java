@@ -2,12 +2,7 @@ package compx576.assignment.httydgame;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,18 +28,19 @@ import java.util.List;
 public class GameActivity extends AppCompatActivity {
 
     private ImageView background;
+    private Button proceedButton;
     private Button returnButton;
+    private Button choice1Button;
+    private Button choice2Button;
     private TextView dialog;
     private TextView speaker;
     private TypedArray imageResources;
     private List<Dialogue> pages;
     private static List<NPC> characters;
-    private ArrayList<Choice> divergencePoints;
     private Dialogue currentPage;
     private int pageNo;
     private String spName = "prefs";
     protected SharedPreferences sharedPreferences;
-    private boolean firstDialog;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
@@ -54,20 +50,22 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         pages = new ArrayList<>();
         characters = new ArrayList<>();
-        firstDialog = true;
-        divergencePoints = new ArrayList<>();
 
-        Button proceedButton = findViewById(R.id.proceed);
+        proceedButton = findViewById(R.id.proceed);
         returnButton = findViewById(R.id.goBack);
-        returnButton.setVisibility(View.INVISIBLE);
+        choice1Button = findViewById(R.id.choice1);
+        choice2Button = findViewById(R.id.choice2);
         dialog = findViewById(R.id.chatter);
         background = findViewById(R.id.myImageView);
         speaker = findViewById(R.id.whoIsTalking);
         imageResources = getResources().obtainTypedArray(R.array.list);
 
-        JSONArray openingScenes = null;
+        proceedButton.setVisibility(View.INVISIBLE);
+        returnButton.setVisibility(View.INVISIBLE);
+        choice1Button.setVisibility(View.INVISIBLE);
+        choice2Button.setVisibility(View.INVISIBLE);
+
         JSONArray initialChars = null;
-        JSONArray noGoingBack = null;
 
         sharedPreferences = getSharedPreferences(spName, MODE_PRIVATE);
 
@@ -75,7 +73,7 @@ public class GameActivity extends AppCompatActivity {
             JSONObject charData = loadFile(getApplicationContext().getAssets().open("initialChars.json"));
             initialChars = (JSONArray) charData.get("characters");
             loadNewScenes("tutorial.json");
-            loadChoicesFile("choice1.json");
+//            loadChoicesFile("choice1.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -98,6 +96,15 @@ public class GameActivity extends AppCompatActivity {
             returnButton.setVisibility(View.VISIBLE);
         }
 
+        if (pageNo < pages.size()-1) {
+            proceedButton.setVisibility(View.VISIBLE);
+        }
+
+        if (pageNo == pages.size()-1) {
+            choice1Button.setVisibility(View.VISIBLE);
+            choice2Button.setVisibility(View.VISIBLE);
+        }
+
         background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
         speaker.setText(Html.fromHtml(currentPage.getCharName()));
         dialog.setText(Html.fromHtml(currentPage.getText()));
@@ -107,17 +114,24 @@ public class GameActivity extends AppCompatActivity {
             if (pageNo != 0) {
                 returnButton.setVisibility(View.VISIBLE);
             }
-            if (pages.get(pageNo).hasChoice()) {
-                makeChoice(pages.get(pageNo), 0);
-            } else {
-                grabNextSegment(pageNo);
+            grabNextSegment(pageNo);
+            if (pages.get(pageNo).getWhatIf() != null) {
+                makeChoice(pages.get(pageNo));
+                proceedButton.setVisibility(View.INVISIBLE);
+                choice1Button.setVisibility(View.VISIBLE);
+                choice2Button.setVisibility(View.VISIBLE);
             }
         });
 
         returnButton.setOnClickListener(view -> {
             pageNo--;
+            proceedButton.setVisibility(View.VISIBLE);
             if (pageNo == 0) {
                 returnButton.setVisibility(View.INVISIBLE);
+            }
+            if (pages.get(pageNo).getWhatIf() == null) {
+                choice1Button.setVisibility(View.INVISIBLE);
+                choice2Button.setVisibility(View.INVISIBLE);
             }
             grabPrevSegment(pageNo);
         });
@@ -141,11 +155,31 @@ public class GameActivity extends AppCompatActivity {
         dialog.setText(Html.fromHtml(currentPage.getText()));
     }
 
-    protected void makeChoice(Dialogue page, int choiceNo) {
-//        FragmentManager fm = getSupportFragmentManager();
-//        Choice c = divergencePoints.get(choiceNo);
-//        ChoiceDialog cd = ChoiceDialog.newInstance(c);
-//        cd.show(fm, "fm");
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    protected void makeChoice(Dialogue page) {
+        Choice c = page.getWhatIf();
+        choice1Button.setText(c.getChoice1());
+        choice1Button.setOnClickListener(view -> {
+            try {
+                loadNewScenes(c.getNextFile()[0]);
+                pageNo++;
+                grabNextSegment(pageNo);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        choice2Button.setText(c.getChoice2());
+        choice2Button.setOnClickListener(view -> {
+            try {
+                loadNewScenes(c.getNextFile()[1]);
+                pageNo++;
+                grabNextSegment(pageNo);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        choice1Button.setVisibility(View.INVISIBLE);
+        choice2Button.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -173,11 +207,7 @@ public class GameActivity extends AppCompatActivity {
         JSONArray newScenes = (JSONArray) sceneData.get("scenes");
         assert newScenes != null;
         for (Object scene : newScenes) {
-            boolean branchPoint;
             JSONObject sceneCopy = (JSONObject) scene;
-            if (sceneCopy.containsKey("choice")) {
-                System.out.println(sceneCopy.get("choice"));
-            }
             JSONArray chatter = (JSONArray) sceneCopy.get("dialogue");
             StringBuilder sb = new StringBuilder();
             assert chatter != null;
@@ -190,34 +220,38 @@ public class GameActivity extends AppCompatActivity {
             String name = (String) sceneCopy.get("speaker");
             long bgImageID = (long) sceneCopy.get("imageIDIndex");
             long isDivergent = (long) sceneCopy.get("isDivergencePoint");
-            branchPoint = (int) isDivergent != 0;
-            Dialogue newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, branchPoint);
-            pages.add(newScene);
-        }
-    }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    protected void loadChoicesFile(String fileName) throws IOException, ParseException {
-        JSONObject choiceData = loadFile(getApplicationContext().getAssets().open(fileName));
-        JSONArray newChoices = (JSONArray) choiceData.get("choice");
-        assert newChoices != null;
-        for (Object choice : newChoices) {
-            JSONObject choiceCopy = (JSONObject) choice;
-            String choiceText = (String) choiceCopy.get("text");
-            String choice1 = (String) choiceCopy.get("ChoiceOne");
-            String choice2 = (String) choiceCopy.get("ChoiceTwo");
-            List<String> chars = (List<String>) choiceCopy.get("charNames");
-            List<NPC> affectedChars = new ArrayList<>();
-            assert chars != null;
-            chars.forEach(charName -> affectedChars.add(findNPCinDB(charName)));
-            JSONArray changes = (JSONArray) choiceCopy.get("relChange");
-            assert changes != null;
-            long[] relChanges = new long[changes.size()];
-            for (int i = 0; i < changes.size(); i++) {
-                relChanges[i] = (long) changes.get(i);
+            JSONObject choiceDetails = (JSONObject) sceneCopy.get("choice");
+            Choice c = null;
+            if (choiceDetails != null) {
+                String choice1 = (String) choiceDetails.get("ChoiceOne");
+                String choice2 = (String) choiceDetails.get("ChoiceTwo");
+                List<String> chars = (List<String>) choiceDetails.get("charNames");
+                List<NPC> affectedChars = new ArrayList<>();
+                assert chars != null;
+                chars.forEach(charName -> affectedChars.add(findNPCinDB(charName)));
+                JSONArray changes = (JSONArray) choiceDetails.get("relChange");
+                assert changes != null;
+                long[] relChanges = new long[changes.size()];
+                for (int i = 0; i < changes.size(); i++) {
+                    relChanges[i] = (long) changes.get(i);
+                }
+                JSONArray files = (JSONArray) choiceDetails.get("fileToOpen");
+                assert files != null;
+                String[] additionalScenes = new String[files.size()];
+                for (int j = 0; j < files.size(); j++) {
+                    additionalScenes[j] = (String) files.get(j);
+                }
+                c = new Choice(choice1, choice2, affectedChars, relChanges, additionalScenes);
             }
-            Choice c = new Choice(choiceText, choice1, choice2, affectedChars, relChanges);
-            divergencePoints.add(c);
+
+            Dialogue newScene;
+            if (isDivergent != 0) {
+                newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, c);
+            } else {
+                newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, null);
+            }
+            pages.add(newScene);
         }
     }
 

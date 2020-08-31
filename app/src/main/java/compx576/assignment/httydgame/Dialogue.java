@@ -22,14 +22,14 @@ public class Dialogue implements Parcelable {
 
     @ColumnInfo(name = "isCurrentPage")
     private boolean isCurrentPage;
-    private boolean hasChoiceAttached;
+    private Choice whatIf;
 
-    public Dialogue(String text, String charName, int bgImage, boolean isCurrentPage, boolean hasChoiceAttached) {
+    public Dialogue(String text, String charName, int bgImage, boolean isCurrentPage, Choice whatIf) {
         this.text = text;
         this.charName = charName;
         this.bgImage = bgImage;
         this.isCurrentPage = isCurrentPage;
-        this.hasChoiceAttached = hasChoiceAttached;
+        this.whatIf = whatIf;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
@@ -39,7 +39,6 @@ public class Dialogue implements Parcelable {
         this.bgImage = in.readInt();
         this.position = in.readInt();
         this.isCurrentPage = in.readBoolean();
-        this.hasChoiceAttached = in.readBoolean();
     }
 
     public static final Creator<Dialogue> CREATOR = new Creator<Dialogue>() {
@@ -75,10 +74,6 @@ public class Dialogue implements Parcelable {
         this.isCurrentPage = currentPage;
     }
 
-    public void setHasChoiceAttached(boolean hasChoiceAttached) {
-        this.hasChoiceAttached = hasChoiceAttached;
-    }
-
     @NonNull
     public String getText() {
         return this.text;
@@ -101,10 +96,6 @@ public class Dialogue implements Parcelable {
         return this.isCurrentPage;
     }
 
-    public boolean hasChoice() {
-        return this.hasChoiceAttached;
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -118,5 +109,13 @@ public class Dialogue implements Parcelable {
         dest.writeInt(this.bgImage);
         dest.writeInt(this.position);
         dest.writeBoolean(this.isCurrentPage);
+    }
+
+    public Choice getWhatIf() {
+        return whatIf;
+    }
+
+    public void setWhatIf(Choice whatIf) {
+        this.whatIf = whatIf;
     }
 }
