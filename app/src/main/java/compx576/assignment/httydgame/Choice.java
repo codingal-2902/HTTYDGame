@@ -1,7 +1,10 @@
 package compx576.assignment.httydgame;
 
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import androidx.annotation.RequiresApi;
 
 import java.util.List;
 
@@ -11,21 +14,25 @@ public class Choice implements Parcelable {
     private List<NPC> affectedChar;
     private long[] levelChange;
     private String[] nextFile;
+    private boolean alreadySeen;
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     protected Choice(Parcel in) {
         choice1 = in.readString();
         choice2 = in.readString();
         affectedChar = in.createTypedArrayList(NPC.CREATOR);
         levelChange = in.createLongArray();
         nextFile = in.createStringArray();
+        alreadySeen = in.readBoolean();
     }
 
-    public Choice(String choice1, String choice2, List<NPC> affectedChars, long[] levelChange, String[] nextFile) {
+    public Choice(boolean alreadySeen, String choice1, String choice2, List<NPC> affectedChars, long[] levelChange, String[] nextFile) {
         this.choice1 = choice1;
         this.choice2 = choice2;
         this.affectedChar = affectedChars;
         this.levelChange = levelChange;
         this.nextFile = nextFile;
+        this.alreadySeen = alreadySeen;
     }
 
     public void setChoice1(String choice1) {
@@ -48,6 +55,10 @@ public class Choice implements Parcelable {
         this.nextFile = nextFile;
     }
 
+    public void setAlreadySeen(boolean alreadySeen) {
+        this.alreadySeen = alreadySeen;
+    }
+
     public String getChoice1() {
         return this.choice1;
     }
@@ -68,7 +79,12 @@ public class Choice implements Parcelable {
         return this.nextFile;
     }
 
+    public boolean alreadyBeenSeen() {
+        return this.alreadySeen;
+    }
+
     public static final Creator<Choice> CREATOR = new Creator<Choice>() {
+        @RequiresApi(api = Build.VERSION_CODES.Q)
         @Override
         public Choice createFromParcel(Parcel in) {
             return new Choice(in);

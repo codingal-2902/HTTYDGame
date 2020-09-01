@@ -72,8 +72,6 @@ public class GameActivity extends AppCompatActivity {
         try {
             JSONObject charData = loadFile(getApplicationContext().getAssets().open("initialChars.json"));
             initialChars = (JSONArray) charData.get("characters");
-            loadNewScenes("tutorial.json");
-//            loadChoicesFile("choice1.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -86,6 +84,12 @@ public class GameActivity extends AppCompatActivity {
             long relLevel = (long) charCopy.get("relationship");
             NPC newCharacter = new NPC(charName, (int) relLevel, false);
             characters.add(newCharacter);
+        }
+
+        try {
+            loadNewScenes("tutorial.json");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         Bundle bundle = getIntent().getExtras();
@@ -114,13 +118,16 @@ public class GameActivity extends AppCompatActivity {
             if (pageNo != 0) {
                 returnButton.setVisibility(View.VISIBLE);
             }
-            grabNextSegment(pageNo);
-            if (pages.get(pageNo).getWhatIf() != null) {
-                makeChoice(pages.get(pageNo));
-                proceedButton.setVisibility(View.INVISIBLE);
-                choice1Button.setVisibility(View.VISIBLE);
-                choice2Button.setVisibility(View.VISIBLE);
+            if (pages.get(pageNo).getWhatIf() == null) {
+                invertChoiceAndProceed(true);
+            } else {
+                if (pages.get(pageNo).getWhatIf().alreadyBeenSeen()) {
+                    invertChoiceAndProceed(true);
+                } else {
+                    invertChoiceAndProceed(false);
+                }
             }
+            grabNextSegment(pageNo);
         });
 
         returnButton.setOnClickListener(view -> {
@@ -130,15 +137,55 @@ public class GameActivity extends AppCompatActivity {
                 returnButton.setVisibility(View.INVISIBLE);
             }
             if (pages.get(pageNo).getWhatIf() == null) {
-                choice1Button.setVisibility(View.INVISIBLE);
-                choice2Button.setVisibility(View.INVISIBLE);
+                invertChoiceAndProceed(true);
             }
             grabPrevSegment(pageNo);
         });
+
+        choice1Button.setOnClickListener(view -> {
+            try {
+                makeChoice(pages.get(pageNo).getWhatIf(), 0);
+                loadNewScenes(pages.get(pageNo).getWhatIf().getNextFile()[0]);
+                pages.get(pageNo).getWhatIf().setAlreadySeen(true);
+                pageNo++;
+                grabNextSegment(pageNo);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        choice2Button.setOnClickListener(view -> {
+            try {
+                makeChoice(pages.get(pageNo).getWhatIf(), 1);
+                loadNewScenes(pages.get(pageNo).getWhatIf().getNextFile()[1]);
+                pages.get(pageNo).getWhatIf().setAlreadySeen(true);
+                pageNo++;
+                grabNextSegment(pageNo);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    protected void invertChoiceAndProceed(boolean condition) {
+        if (condition) {
+            proceedButton.setVisibility(View.VISIBLE);
+            choice1Button.setVisibility(View.INVISIBLE);
+            choice2Button.setVisibility(View.INVISIBLE);
+        } else {
+            proceedButton.setVisibility(View.INVISIBLE);
+            choice1Button.setVisibility(View.VISIBLE);
+            choice2Button.setVisibility(View.VISIBLE);
+        }
     }
 
     protected void grabNextSegment(int position) {
         currentPage = pages.get(position);
+        if (currentPage.getWhatIf() == null) {
+            invertChoiceAndProceed(true);
+        } else {
+            choice1Button.setText(currentPage.getWhatIf().getChoice1());
+            choice2Button.setText(currentPage.getWhatIf().getChoice2());
+        }
 //        repo.setCurrentPage(getApplicationContext(), position+1);
 //        repo.resetOldPage(getApplicationContext(), position);
         background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
@@ -148,6 +195,10 @@ public class GameActivity extends AppCompatActivity {
 
     protected void grabPrevSegment(int position) {
         currentPage = pages.get(position);
+
+        // NOT ALLOWED TO GO BACK AND REDO A CHOICE!
+        invertChoiceAndProceed(true);
+
 //        repo.setCurrentPage(getApplicationContext(), position);
 //        repo.resetOldPage(getApplicationContext(), position+1);
         background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
@@ -156,30 +207,22 @@ public class GameActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    protected void makeChoice(Dialogue page) {
-        Choice c = page.getWhatIf();
-        choice1Button.setText(c.getChoice1());
-        choice1Button.setOnClickListener(view -> {
-            try {
-                loadNewScenes(c.getNextFile()[0]);
-                pageNo++;
-                grabNextSegment(pageNo);
-            } catch (Exception e) {
-                e.printStackTrace();
+    protected void makeChoice(Choice c, int whichChoice) {
+        List<NPC> chars = c.getAffectedChar();
+        long[] relChanges = c.getLevelChange();
+
+        int offset = relChanges.length/2;
+        NPC storedChar;
+
+        if (chars.size() == relChanges.length) {
+            storedChar = characters.get(characters.indexOf(chars.get(0)));
+            storedChar.setRelationship(storedChar.getRelationship() + (int) relChanges[0]);
+        } else {
+            for (int i = 0; i < offset; i++) {
+                storedChar = characters.get(characters.indexOf(chars.get(i)));
+                storedChar.setRelationship(storedChar.getRelationship() + (int) relChanges[(offset*whichChoice) + i]);
             }
-        });
-        choice2Button.setText(c.getChoice2());
-        choice2Button.setOnClickListener(view -> {
-            try {
-                loadNewScenes(c.getNextFile()[1]);
-                pageNo++;
-                grabNextSegment(pageNo);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        choice1Button.setVisibility(View.INVISIBLE);
-        choice2Button.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
@@ -226,10 +269,13 @@ public class GameActivity extends AppCompatActivity {
             if (choiceDetails != null) {
                 String choice1 = (String) choiceDetails.get("ChoiceOne");
                 String choice2 = (String) choiceDetails.get("ChoiceTwo");
-                List<String> chars = (List<String>) choiceDetails.get("charNames");
-                List<NPC> affectedChars = new ArrayList<>();
+                JSONArray chars = (JSONArray) choiceDetails.get("charNames");
                 assert chars != null;
-                chars.forEach(charName -> affectedChars.add(findNPCinDB(charName)));
+                List<NPC> affectedChars = new ArrayList<>();
+                for (Object charName : chars) {
+                    String nameCopy = (String) charName;
+                    affectedChars.add(findNPCinDB(nameCopy));
+                }
                 JSONArray changes = (JSONArray) choiceDetails.get("relChange");
                 assert changes != null;
                 long[] relChanges = new long[changes.size()];
@@ -242,7 +288,7 @@ public class GameActivity extends AppCompatActivity {
                 for (int j = 0; j < files.size(); j++) {
                     additionalScenes[j] = (String) files.get(j);
                 }
-                c = new Choice(choice1, choice2, affectedChars, relChanges, additionalScenes);
+                c = new Choice(false, choice1, choice2, affectedChars, relChanges, additionalScenes);
             }
 
             Dialogue newScene;
