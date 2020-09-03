@@ -9,6 +9,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity {
 
     protected SharedPreferences sharedPreferences;
@@ -26,12 +29,20 @@ public class MainActivity extends AppCompatActivity {
         Button startGame = findViewById(R.id.start_game);
         startGame.setOnClickListener(view -> {
             Intent game = new Intent(MainActivity.this, GameActivity.class);
-            if (sharedPreferences.contains("pageNo")) {
+            if (sharedPreferences.contains("pageNo") && sharedPreferences.contains("files")) {
                 game.putExtra("savedPage", sharedPreferences.getInt("pageNo", 0));
+                game.putExtra("files", Objects.requireNonNull(sharedPreferences.getStringSet("files", null)).toArray(new String[0]));
             } else {
                 game.putExtra("savedPage", 0);
+                game.putExtra("files", new String[0]);
             }
             startActivity(game);
+        });
+
+        Button achievementList = findViewById(R.id.viewAchievements);
+        achievementList.setOnClickListener(view -> {
+            Intent achievements = new Intent(MainActivity.this, AchievementList.class);
+            startActivity(achievements);
         });
     }
 }

@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.content.res.TypedArray;
 import android.text.Html;
+import android.util.ArraySet;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -23,7 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -39,10 +43,10 @@ public class GameActivity extends AppCompatActivity {
     private static List<NPC> characters;
     private Dialogue currentPage;
     private int pageNo;
-    private String spName = "prefs";
+    private Set<String> loadedFiles;
     protected SharedPreferences sharedPreferences;
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +54,7 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         pages = new ArrayList<>();
         characters = new ArrayList<>();
+        loadedFiles = new ArraySet<>();
 
         proceedButton = findViewById(R.id.proceed);
         returnButton = findViewById(R.id.goBack);
@@ -60,13 +65,14 @@ public class GameActivity extends AppCompatActivity {
         speaker = findViewById(R.id.whoIsTalking);
         imageResources = getResources().obtainTypedArray(R.array.list);
 
-        proceedButton.setVisibility(View.INVISIBLE);
+        proceedButton.setVisibility(View.VISIBLE);
         returnButton.setVisibility(View.INVISIBLE);
         choice1Button.setVisibility(View.INVISIBLE);
         choice2Button.setVisibility(View.INVISIBLE);
 
         JSONArray initialChars = null;
 
+        String spName = "prefs";
         sharedPreferences = getSharedPreferences(spName, MODE_PRIVATE);
 
         try {
@@ -95,19 +101,33 @@ public class GameActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         assert bundle != null;
         pageNo = bundle.getInt("savedPage", 0);
-        currentPage = pages.get(pageNo);
-        if (pageNo > 0) {
-            returnButton.setVisibility(View.VISIBLE);
+        loadedFiles = new ArraySet<>(Arrays.asList(Objects.requireNonNull(bundle.getStringArray("files"))));
+        if (loadedFiles.size() != 0) {
+            for (String storedFile : loadedFiles) {
+                try {
+                    loadNewScenes(storedFile);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
-        if (pageNo < pages.size()-1) {
+        if (pageNo > 0) {
+            returnButton.setVisibility(View.VISIBLE);
             proceedButton.setVisibility(View.VISIBLE);
         }
 
-        if (pageNo == pages.size()-1) {
-            choice1Button.setVisibility(View.VISIBLE);
-            choice2Button.setVisibility(View.VISIBLE);
+        if (pages.get(pageNo).getWhatIf() != null) {
+            if (!pages.get(pageNo).getWhatIf().alreadyBeenSeen()) {
+                invertChoiceAndProceed(false);
+                choice1Button.setText(pages.get(pageNo).getWhatIf().getChoice1());
+                choice2Button.setText(pages.get(pageNo).getWhatIf().getChoice2());
+            }
+        } else {
+            invertChoiceAndProceed(true);
         }
+
+        currentPage = pages.get(pageNo);
 
         background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
         speaker.setText(Html.fromHtml(currentPage.getCharName()));
@@ -145,7 +165,6 @@ public class GameActivity extends AppCompatActivity {
         choice1Button.setOnClickListener(view -> {
             try {
                 makeChoice(pages.get(pageNo).getWhatIf(), 0);
-                loadNewScenes(pages.get(pageNo).getWhatIf().getNextFile()[0]);
                 pages.get(pageNo).getWhatIf().setAlreadySeen(true);
                 pageNo++;
                 grabNextSegment(pageNo);
@@ -156,7 +175,6 @@ public class GameActivity extends AppCompatActivity {
         choice2Button.setOnClickListener(view -> {
             try {
                 makeChoice(pages.get(pageNo).getWhatIf(), 1);
-                loadNewScenes(pages.get(pageNo).getWhatIf().getNextFile()[1]);
                 pages.get(pageNo).getWhatIf().setAlreadySeen(true);
                 pageNo++;
                 grabNextSegment(pageNo);
@@ -207,7 +225,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    protected void makeChoice(Choice c, int whichChoice) {
+    protected void makeChoice(Choice c, int whichChoice) throws IOException, ParseException {
         List<NPC> chars = c.getAffectedChar();
         long[] relChanges = c.getLevelChange();
 
@@ -223,6 +241,8 @@ public class GameActivity extends AppCompatActivity {
                 storedChar.setRelationship(storedChar.getRelationship() + (int) relChanges[(offset*whichChoice) + i]);
             }
         }
+        String fileName = c.getNextFile()[whichChoice];
+        loadNewScenes(fileName); loadedFiles.add(fileName);
     }
 
     @Override
@@ -231,6 +251,7 @@ public class GameActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
         editor.putInt("pageNo", pageNo);
+        editor.putStringSet("files", loadedFiles);
         editor.apply();
         System.out.println("onPause was called.");
     }
