@@ -2,10 +2,10 @@ package compx576.assignment.httydgame;
 
 public class Achievement {
 
-    int id;
-    String name;
-    String description;
-    boolean isUnlocked;
+    private int id;
+    private String name;
+    private String description;
+    private boolean isUnlocked;
 
     public Achievement(int id, String name, String description, boolean isUnlocked) {
         this.id = id;
