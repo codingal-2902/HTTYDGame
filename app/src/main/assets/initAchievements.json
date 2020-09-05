@@ -1,4 +1,19 @@
-{"achievements": [
-	
-]
+{
+  "achievements": [
+    {
+      "id": 0,
+      "name": "Business as usual.",
+      "description": "You decided to keep things the same."
+    },
+    {
+      "id": 1,
+      "name": "This could be interesting...",
+      "description": "You chose to try and help the village, despite your track record."
+    },
+    {
+      "id": 2,
+      "name": "Wasting time.",
+      "description": "Building something new won't really help, especially with the Mangler already mostly done."
+    }
+  ]
 }

@@ -55,8 +55,9 @@
 				"ChoiceTwo": "Come up with something new.",
 				"charNames": ["Village"],
 				"relChange": [0],
-				"fileToOpen":  ["chapter1.json", "tutorialDivergence1/choice1.json"]
-			},
+				"fileToOpen":  ["chapter1.json", "tutorialDivergence1/choice1.json"],
+				"achievementID": [0, null]
+			}
 		}
 	]
 }
