@@ -2,18 +2,35 @@
 <!--  Single List Item Design -->
 <LinearLayout
     android:layout_height="wrap_content"
-    android:layout_width="fill_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal">
-    <TextView
-        android:id="@+id/label"
-        android:layout_width="fill_parent"
+    android:layout_width="match_parent"
+    android:background="#4f4f4f"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView
+        android:id="@+id/a_icon"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="10dip"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-    <TextView
-        android:id="@+id/desc"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_gravity="center"
+        android:background="@drawable/baseline_emoji_events_white_36dp"
+        android:contentDescription="@string/todo" />
+    <RelativeLayout
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/label"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#bebebe"
+            android:padding="10dip"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/label"
+            android:textColor="#bebebe"
+            android:textSize="16sp"
+            android:padding="5dip"/>
+    </RelativeLayout>
 </LinearLayout>

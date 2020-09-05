@@ -17,11 +17,7 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
-import org.json.simple.JSONObject;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 public class AchievementList extends AppCompatActivity {
