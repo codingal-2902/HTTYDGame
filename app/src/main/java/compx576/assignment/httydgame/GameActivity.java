@@ -112,6 +112,9 @@ public class GameActivity extends AppCompatActivity {
             }
         }
 
+        System.out.println(pages.toString());
+        System.out.println(loadedFiles);
+
         if (pageNo > 0) {
             returnButton.setVisibility(View.VISIBLE);
             proceedButton.setVisibility(View.VISIBLE);
