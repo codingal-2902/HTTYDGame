@@ -3,6 +3,7 @@ package compx576.assignment.httydgame;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,7 +37,7 @@ public class GameActivity extends AppCompatActivity {
     private Button returnButton;
     private Button choice1Button;
     private Button choice2Button;
-    private TextView dialog;
+    private TypeWriter dialog;
     private TextView speaker;
     private TypedArray imageResources;
     private List<Dialogue> pages;
@@ -46,6 +47,7 @@ public class GameActivity extends AppCompatActivity {
     private Set<String> loadedFiles;
     protected SharedPreferences sharedPreferences;
 
+    @SuppressLint("WrongViewCast")
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +62,7 @@ public class GameActivity extends AppCompatActivity {
         returnButton = findViewById(R.id.goBack);
         choice1Button = findViewById(R.id.choice1);
         choice2Button = findViewById(R.id.choice2);
-        dialog = findViewById(R.id.chatter);
+        dialog = (TypeWriter) findViewById(R.id.chatter);
         background = findViewById(R.id.myImageView);
         speaker = findViewById(R.id.whoIsTalking);
         imageResources = getResources().obtainTypedArray(R.array.list);
@@ -131,7 +133,9 @@ public class GameActivity extends AppCompatActivity {
 
         background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
         speaker.setText(Html.fromHtml(currentPage.getCharName()));
-        dialog.setText(Html.fromHtml(currentPage.getText()));
+        dialog.setText("");
+        dialog.setCharacterDelay(50);
+        dialog.animateText(Html.fromHtml(currentPage.getText()));
 
         proceedButton.setOnClickListener(view -> {
             pageNo++;
@@ -208,7 +212,8 @@ public class GameActivity extends AppCompatActivity {
 //        repo.resetOldPage(getApplicationContext(), position);
         background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
         speaker.setText(Html.fromHtml(currentPage.getCharName()));
-        dialog.setText(Html.fromHtml(currentPage.getText()));
+//        dialog.setText(Html.fromHtml(currentPage.getText()));
+        dialog.animateText(Html.fromHtml(currentPage.getText()));
     }
 
     protected void grabPrevSegment(int position) {
@@ -221,7 +226,9 @@ public class GameActivity extends AppCompatActivity {
 //        repo.resetOldPage(getApplicationContext(), position+1);
         background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
         speaker.setText(Html.fromHtml(currentPage.getCharName()));
-        dialog.setText(Html.fromHtml(currentPage.getText()));
+//        dialog.setText(Html.fromHtml(currentPage.getText()));
+        dialog.animateText(Html.fromHtml(currentPage.getText()));
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

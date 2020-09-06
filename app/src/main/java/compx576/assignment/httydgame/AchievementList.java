@@ -22,9 +22,7 @@ import java.util.Objects;
 
 public class AchievementList extends AppCompatActivity {
 
-    protected SharedPreferences sp;
-    protected String[] mobileArray = {"Android","IPhone","WindowsMobile","Blackberry",
-            "WebOS","Ubuntu","Windows7","Max OS X"};
+//    protected SharedPreferences sp;
     protected ArrayList<Achievement> achievementList;
 
     Intent intent = new Intent();
@@ -48,17 +46,9 @@ public class AchievementList extends AppCompatActivity {
             achievementList.add(achievementObj);
         }
 
-        // Create the adapter to convert the array to views
         ListAdapter adapter = new ListAdapter(this, achievementList);
-        // Attach the adapter to a ListView
         ListView listView = findViewById(R.id.mobile_list);
         listView.setAdapter(adapter);
-
-//        ArrayAdapter adapter = new ArrayAdapter<>(this,
-//                R.layout.activity_listview, mobileArray);
-//
-//        ListView listView = findViewById(R.id.mobile_list);
-//        listView.setAdapter(adapter);
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -76,7 +66,7 @@ public class AchievementList extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    class ListAdapter extends ArrayAdapter<Achievement> {
+    static class ListAdapter extends ArrayAdapter<Achievement> {
         public ListAdapter(@NonNull Context context, ArrayList<Achievement> aList) {
             super(context, 0, aList);
         }
@@ -84,20 +74,17 @@ public class AchievementList extends AppCompatActivity {
         @NonNull
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
-            // Get the data item for this position
             Achievement achievement = getItem(position);
-            // Check if an existing view is being reused, otherwise inflate the view
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.activity_listview, parent, false);
             }
-            // Lookup view for data population
+
             TextView label = convertView.findViewById(R.id.label);
             TextView desc = convertView.findViewById(R.id.desc);
-            // Populate the data into the template view using the data object
+
             assert achievement != null;
             label.setText(achievement.getName());
             desc.setText(achievement.getDescription());
-            // Return the completed view to render on screen
             return convertView;
         }
     }

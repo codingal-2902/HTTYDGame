@@ -51,7 +51,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/whoIsTalking">
-                <TextView
+                <compx576.assignment.httydgame.TypeWriter
                     android:id="@+id/chatter"
                     style="@android:style/TextAppearance.Large"
                     android:layout_width="match_parent"
