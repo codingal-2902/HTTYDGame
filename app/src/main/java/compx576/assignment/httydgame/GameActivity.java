@@ -136,9 +136,13 @@ public class GameActivity extends AppCompatActivity {
         dialog.setText("");
         dialog.setCharacterDelay(50);
         dialog.animateText(Html.fromHtml(currentPage.getText()));
+        dialog.setOnClickListener(view -> {
+            dialog.removeDelay();
+        });
 
         proceedButton.setOnClickListener(view -> {
             pageNo++;
+            dialog.setCharacterDelay(50);
             if (pageNo != 0) {
                 returnButton.setVisibility(View.VISIBLE);
             }
@@ -156,6 +160,7 @@ public class GameActivity extends AppCompatActivity {
 
         returnButton.setOnClickListener(view -> {
             pageNo--;
+            dialog.setCharacterDelay(50);
             proceedButton.setVisibility(View.VISIBLE);
             if (pageNo == 0) {
                 returnButton.setVisibility(View.INVISIBLE);

@@ -45,4 +45,9 @@ public class TypeWriter extends TextView {
     public void setCharacterDelay(long millis) {
         mDelay = millis;
     }
+
+    public void removeDelay() {
+        mHandler.removeCallbacks(characterAdder);
+        setText(mText);
+    }
 }
