@@ -1,11 +1,11 @@
 {"scenes":
 	[
 		{
-		"imageIDIndex":0,
-		"speaker":"Narrator",
-		"dialogue":["This is Berk.<br/><br/>",
-		"It's twelve days north of Hopeless, and a few degrees south of Freezing to Death. It's located solidly on the Meridian of Misery."],
-		"isDivergencePoint": 0
+			"imageIDIndex":0,
+			"speaker":"Narrator",
+			"dialogue":["This is Berk.<br/><br/>",
+			"It's twelve days north of Hopeless, and a few degrees south of Freezing to Death. It's located solidly on the Meridian of Misery."],
+			"isDivergencePoint": 0
 		},
 		{
 			"imageIDIndex":1,
@@ -50,6 +50,7 @@
 				"Hiccup spies his missing sketchbook lying on a nearby bench.<br/>",
 				"What does he do next?"],
 			"isDivergencePoint": 1,
+			"pointInTime": "Day 0 - Night",
 			"choice": {
 				"ChoiceOne": "Keep working on Mangler.",
 				"ChoiceTwo": "Come up with something new.",
@@ -59,5 +60,6 @@
 				"achievementID": [0, null]
 			}
 		}
-	]
+	],
+	"pointInTime": "Day 0 - Night"
 }

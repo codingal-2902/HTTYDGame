@@ -1,15 +1,18 @@
 package compx576.assignment.httydgame;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.content.res.TypedArray;
 import android.text.Html;
 import android.util.ArraySet;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -29,6 +32,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -39,11 +44,14 @@ public class GameActivity extends AppCompatActivity {
     private Button choice2Button;
     private TypeWriter dialog;
     private TextView speaker;
+    private View chatterBox;
     private TypedArray imageResources;
     private List<Dialogue> pages;
     private static List<NPC> characters;
     private Dialogue currentPage;
     private int pageNo;
+    private int changeDayTime;
+    private String pointInTime;
     private Set<String> loadedFiles;
     protected SharedPreferences sharedPreferences;
 
@@ -57,6 +65,8 @@ public class GameActivity extends AppCompatActivity {
         pages = new ArrayList<>();
         characters = new ArrayList<>();
         loadedFiles = new ArraySet<>();
+        pointInTime = "";
+        changeDayTime = 0;
 
         proceedButton = findViewById(R.id.proceed);
         returnButton = findViewById(R.id.goBack);
@@ -65,6 +75,7 @@ public class GameActivity extends AppCompatActivity {
         dialog = (TypeWriter) findViewById(R.id.chatter);
         background = findViewById(R.id.myImageView);
         speaker = findViewById(R.id.whoIsTalking);
+        chatterBox = findViewById(R.id.dialogueBox);
         imageResources = getResources().obtainTypedArray(R.array.list);
 
         proceedButton.setVisibility(View.VISIBLE);
@@ -115,7 +126,6 @@ public class GameActivity extends AppCompatActivity {
         }
 
         if (pageNo > 0) {
-            returnButton.setVisibility(View.VISIBLE);
             proceedButton.setVisibility(View.VISIBLE);
         }
 
@@ -142,9 +152,47 @@ public class GameActivity extends AppCompatActivity {
 
         proceedButton.setOnClickListener(view -> {
             pageNo++;
-            dialog.setCharacterDelay(50);
-            if (pageNo != 0) {
-                returnButton.setVisibility(View.VISIBLE);
+            if (pageNo == changeDayTime) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                TextView title = new TextView(this);
+
+                title.setText(pointInTime);
+                title.setBackgroundColor(Color.DKGRAY);
+                title.setPadding(10, 10, 10, 10);
+                title.setGravity(Gravity.CENTER);
+                title.setTextColor(Color.WHITE);
+                title.setTextSize(20);
+
+                builder.setCustomTitle(title);
+                builder.setCancelable(true);
+
+                final AlertDialog closedialog = builder.create();
+
+                closedialog.show();
+                chatterBox.setVisibility(View.INVISIBLE);
+                background.setImageDrawable(imageResources.getDrawable(pages.get(pageNo).getBgImage()));
+                speaker.setText("");
+                dialog.setText("");
+
+                final Timer timer2 = new Timer();
+                timer2.schedule(new TimerTask() {
+                    public void run() {
+                        try {
+                            synchronized (this) {
+                                runOnUiThread(() -> {
+                                    closedialog.dismiss();
+                                    timer2.cancel();
+                                    chatterBox.setVisibility(View.VISIBLE);
+                                    grabNextSegment(pageNo);
+                                });
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, 3000);
+            } else {
+                grabNextSegment(pageNo);
             }
             if (pages.get(pageNo).getWhatIf() == null) {
                 invertChoiceAndProceed(true);
@@ -155,20 +203,6 @@ public class GameActivity extends AppCompatActivity {
                     invertChoiceAndProceed(false);
                 }
             }
-            grabNextSegment(pageNo);
-        });
-
-        returnButton.setOnClickListener(view -> {
-            pageNo--;
-            dialog.setCharacterDelay(50);
-            proceedButton.setVisibility(View.VISIBLE);
-            if (pageNo == 0) {
-                returnButton.setVisibility(View.INVISIBLE);
-            }
-            if (pages.get(pageNo).getWhatIf() == null) {
-                invertChoiceAndProceed(true);
-            }
-            grabPrevSegment(pageNo);
         });
 
         choice1Button.setOnClickListener(view -> {
@@ -207,6 +241,7 @@ public class GameActivity extends AppCompatActivity {
 
     protected void grabNextSegment(int position) {
         currentPage = pages.get(position);
+        dialog.setCharacterDelay(50);
         if (currentPage.getWhatIf() == null) {
             invertChoiceAndProceed(true);
         } else {
@@ -217,23 +252,7 @@ public class GameActivity extends AppCompatActivity {
 //        repo.resetOldPage(getApplicationContext(), position);
         background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
         speaker.setText(Html.fromHtml(currentPage.getCharName()));
-//        dialog.setText(Html.fromHtml(currentPage.getText()));
         dialog.animateText(Html.fromHtml(currentPage.getText()));
-    }
-
-    protected void grabPrevSegment(int position) {
-        currentPage = pages.get(position);
-
-        // NOT ALLOWED TO GO BACK AND REDO A CHOICE!
-        invertChoiceAndProceed(true);
-
-//        repo.setCurrentPage(getApplicationContext(), position);
-//        repo.resetOldPage(getApplicationContext(), position+1);
-        background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
-        speaker.setText(Html.fromHtml(currentPage.getCharName()));
-//        dialog.setText(Html.fromHtml(currentPage.getText()));
-        dialog.animateText(Html.fromHtml(currentPage.getText()));
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -282,6 +301,7 @@ public class GameActivity extends AppCompatActivity {
         JSONObject sceneData = loadFile(getApplicationContext().getAssets().open(fileName));
         JSONArray newScenes = (JSONArray) sceneData.get("scenes");
         assert newScenes != null;
+        int x = 0;
         for (Object scene : newScenes) {
             JSONObject sceneCopy = (JSONObject) scene;
             JSONArray chatter = (JSONArray) sceneCopy.get("dialogue");
@@ -296,6 +316,11 @@ public class GameActivity extends AppCompatActivity {
             String name = (String) sceneCopy.get("speaker");
             long bgImageID = (long) sceneCopy.get("imageIDIndex");
             long isDivergent = (long) sceneCopy.get("isDivergencePoint");
+
+            if (sceneCopy.get("pointInTime") != null) {
+                pointInTime = (String) sceneCopy.get("pointInTime");
+                changeDayTime = x;
+            }
 
             JSONObject choiceDetails = (JSONObject) sceneCopy.get("choice");
             Choice c = null;
@@ -331,6 +356,7 @@ public class GameActivity extends AppCompatActivity {
                 newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, null);
             }
             pages.add(newScene);
+            x++;
         }
     }
 
@@ -350,33 +376,4 @@ public class GameActivity extends AppCompatActivity {
     public NPC findNPCinDB(String name) {
         return characters.stream().filter(e->e.getCharName().equals(name)).findFirst().orElse(null);
     }
-
-//    public static class ChoiceDialog extends DialogFragment {
-//        public ChoiceDialog() {
-//
-//        }
-//
-//        static ChoiceDialog newInstance(Choice choice) {
-//            ChoiceDialog box = new ChoiceDialog();
-//            Bundle args = new Bundle();
-//            args.putParcelable("choice", choice);
-//            box.setArguments(args);
-//            return box;
-//        }
-//
-//        @RequiresApi(api = Build.VERSION_CODES.N)
-//        @Override
-//        public Dialog onCreateDialog(Bundle savedInstanceState) {
-//            AlertDialog.Builder choiceDialogBuilder = new AlertDialog.Builder(getActivity());
-//            choiceDialogBuilder.setTitle("Time to make a decision.");
-//            assert getArguments() != null;
-//            Choice c = (Choice) getArguments().get("choice");
-//            assert c != null;
-//            choiceDialogBuilder.setMessage(Html.fromHtml(c.getText()))
-//                    .setNeutralButton(c.getChoice1(), (dialogInterface, i) -> {
-//
-//                    });
-//            return choiceDialogBuilder.create();
-//        }
-//    }
 }
