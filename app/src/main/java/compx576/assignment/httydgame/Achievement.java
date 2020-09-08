@@ -5,16 +5,14 @@ public class Achievement {
     private int id;
     private String name;
     private String description;
-    private int multiplier;
-    private String functionString;
+    private String multiplier;
     private boolean isUnlocked;
 
-    public Achievement(int id, String name, String description, int multiplier, String callFunction, boolean isUnlocked) {
+    public Achievement(int id, String name, String description, String multiplier, boolean isUnlocked) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.multiplier = multiplier;
-        this.functionString = callFunction;
         this.isUnlocked = isUnlocked;
     }
 
@@ -30,12 +28,8 @@ public class Achievement {
         this.description = description;
     }
 
-    public void setMultiplier(int multiplier) {
+    public void setMultiplier(String multiplier) {
         this.multiplier = multiplier;
-    }
-
-    public void setFunctionString(String functionString) {
-        this.functionString = functionString;
     }
 
     public void setUnlocked(boolean unlocked) {
@@ -54,12 +48,8 @@ public class Achievement {
         return this.description;
     }
 
-    public int getMultiplier() {
+    public String getMultiplier() {
         return this.multiplier;
-    }
-
-    public String getFunctionString() {
-        return this.functionString;
     }
 
     public boolean isUnlocked() {

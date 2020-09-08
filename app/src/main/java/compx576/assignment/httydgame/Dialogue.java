@@ -110,7 +110,7 @@ public class Dialogue implements Parcelable {
         return this.whatIf;
     }
 
-    public Achievement getHasAchievement() {
+    public Achievement getAchievement() {
         return this.hasAchievement;
     }
 

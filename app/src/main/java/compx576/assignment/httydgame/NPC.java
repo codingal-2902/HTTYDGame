@@ -17,7 +17,7 @@ public class NPC implements Parcelable {
     @ColumnInfo(name = "name")
     private String charName;
     @ColumnInfo(name = "relLevel")
-    private int relationship;
+    private float relationship;
     @ColumnInfo(name = "isSpeaker")
     private boolean currentSpeaker;
 
@@ -25,11 +25,11 @@ public class NPC implements Parcelable {
     protected NPC(Parcel in) {
         pk = in.readInt();
         charName = in.readString();
-        relationship = in.readInt();
+        relationship = in.readFloat();
         currentSpeaker = in.readBoolean();
     }
 
-    public NPC(String name, int initialRelLevel, boolean isSpeaker) {
+    public NPC(String name, float initialRelLevel, boolean isSpeaker) {
         this.charName = name;
         this.relationship = initialRelLevel;
         this.currentSpeaker = isSpeaker;
@@ -43,7 +43,7 @@ public class NPC implements Parcelable {
         return this.charName;
     }
 
-    public int getRelationship() {
+    public float getRelationship() {
         return this.relationship;
     }
 
@@ -59,7 +59,7 @@ public class NPC implements Parcelable {
         this.charName = charName;
     }
 
-    public void setRelationship(int relationship) {
+    public void setRelationship(float relationship) {
         this.relationship = relationship;
     }
 
@@ -89,7 +89,7 @@ public class NPC implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeInt(pk);
         parcel.writeString(charName);
-        parcel.writeInt(relationship);
+        parcel.writeFloat(relationship);
         parcel.writeBoolean(currentSpeaker);
     }
 }

@@ -52,7 +52,7 @@ public class GameActivity extends AppCompatActivity {
     private Dialogue currentPage;
     private int pageNo;
     private int changeDayTime;
-    private int relMultiplier;
+    private float relMultiplier;
     private String pointInTime;
     private Set<String> loadedFiles;
     private ArrayList<Achievement> achievements;
@@ -68,6 +68,7 @@ public class GameActivity extends AppCompatActivity {
         pages = new ArrayList<>();
         characters = new ArrayList<>();
         loadedFiles = new ArraySet<>();
+        achievements = new ArrayList<>();
         pointInTime = "";
         changeDayTime = 0;
         relMultiplier = 1;
@@ -75,7 +76,7 @@ public class GameActivity extends AppCompatActivity {
         proceedButton = findViewById(R.id.proceed);
         choice1Button = findViewById(R.id.choice1);
         choice2Button = findViewById(R.id.choice2);
-        dialog = (TypeWriter) findViewById(R.id.chatter);
+        dialog = findViewById(R.id.chatter);
         background = findViewById(R.id.myImageView);
         speaker = findViewById(R.id.whoIsTalking);
         chatterBox = findViewById(R.id.dialogueBox);
@@ -259,6 +260,9 @@ public class GameActivity extends AppCompatActivity {
             choice1Button.setText(currentPage.getWhatIf().getChoice1());
             choice2Button.setText(currentPage.getWhatIf().getChoice2());
         }
+        if (currentPage.getAchievement() != null) {
+            displayAchievement(currentPage);
+        }
 //        repo.setCurrentPage(getApplicationContext(), position+1);
 //        repo.resetOldPage(getApplicationContext(), position);
         background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
@@ -287,12 +291,17 @@ public class GameActivity extends AppCompatActivity {
         loadNewScenes(fileName); loadedFiles.add(fileName);
     }
 
-    protected void displayAchievement() {
-
+    protected void displayAchievement(Dialogue page) {
+        Achievement a = page.getAchievement();
+        System.out.println(a.getMultiplier());
+        setRelMultiplier(a.getMultiplier());
+        System.out.println(a);
     }
 
-    protected void setRelMultiplier(int newMultiplier) {
-        relMultiplier = newMultiplier;
+    protected void setRelMultiplier(String newMultiplier) {
+        float floatVal = Float.parseFloat(newMultiplier);
+        relMultiplier += floatVal;
+        System.out.println(relMultiplier);
     }
 
     @Override
@@ -371,7 +380,7 @@ public class GameActivity extends AppCompatActivity {
             String achievementDetails = (String) sceneCopy.get("unlockAchievement");
             Achievement a = null;
             if (achievementDetails != null) {
-                a = achievements.stream().filter(e->e.getName().equals(achievementDetails)).findFirst().orElse(null);
+                a = achievements.stream().filter(e->e.getName().contains(achievementDetails)).findFirst().orElse(null);
             }
 
             Dialogue newScene;
