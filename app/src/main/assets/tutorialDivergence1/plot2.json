@@ -1,9 +1,10 @@
 {"scenes":
 	[
 		{
-			"imageIDIndex":4,
+			"imageIDIndex": 4,
 			"speaker":"Hiccup",
 			"dialogue":["Maybe it might work out this time. Let's get to it."],
-			"isDivergencePoint": 0
+			"isDivergencePoint": 0,
+			"unlockAchievement": "This could be interesting..."
 		}]
 }

@@ -3,17 +3,23 @@
     {
       "id": 0,
       "name": "Business as usual.",
-      "description": "You decided to keep things the same."
+      "description": "You decided to keep things the same.",
+      "callFunction": ["setToAllChars"],
+      "multiplier": 1
     },
     {
       "id": 1,
       "name": "This could be interesting...",
-      "description": "You chose to try and help the village, despite your track record."
+      "description": "You chose to try and help the village, despite your track record.",
+      "callFunction": ["setToAllChars"],
+      "multiplier": 1.1
     },
     {
       "id": 2,
       "name": "Wasting time.",
-      "description": "Building something new won't really help, especially with the Mangler already mostly done."
+      "description": "Building something new won't really help, especially with the Mangler already mostly done.",
+      "callFunction": ["setToSingleChar", "Stoick"],
+      "multiplier": 0.9
     }
   ]
 }

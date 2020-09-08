@@ -12,8 +12,7 @@
 				"ChoiceTwo": "Find a possible solution for the fire brigade.",
 				"charNames": ["Village", "Stoick"],
 				"relChange": [-10, -15, 30, 30],
-				"fileToOpen":  ["tutorialDivergence1/plot1.json", "tutorialDivergence1/plot2.json"],
-				"achievementID": [2, 1]
+				"fileToOpen":  ["tutorialDivergence1/plot1.json", "tutorialDivergence1/plot2.json"]
 			}
 		}
 	]

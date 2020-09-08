@@ -19,17 +19,19 @@ public class Dialogue implements Parcelable {
     private String text;
     private String charName;
     private int bgImage;
+    private Achievement hasAchievement;
 
     @ColumnInfo(name = "isCurrentPage")
     private boolean isCurrentPage;
     private Choice whatIf;
 
-    public Dialogue(String text, String charName, int bgImage, boolean isCurrentPage, Choice whatIf) {
+    public Dialogue(String text, String charName, int bgImage, boolean isCurrentPage, Choice whatIf, Achievement unlockedSomething) {
         this.text = text;
         this.charName = charName;
         this.bgImage = bgImage;
         this.isCurrentPage = isCurrentPage;
         this.whatIf = whatIf;
+        this.hasAchievement = unlockedSomething;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
@@ -74,6 +76,14 @@ public class Dialogue implements Parcelable {
         this.isCurrentPage = currentPage;
     }
 
+    public void setWhatIf(Choice whatIf) {
+        this.whatIf = whatIf;
+    }
+
+    public void setAchievement(Achievement hasAchievement) {
+        this.hasAchievement = hasAchievement;
+    }
+
     @NonNull
     public String getText() {
         return this.text;
@@ -96,6 +106,14 @@ public class Dialogue implements Parcelable {
         return this.isCurrentPage;
     }
 
+    public Choice getWhatIf() {
+        return this.whatIf;
+    }
+
+    public Achievement getHasAchievement() {
+        return this.hasAchievement;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -109,13 +127,5 @@ public class Dialogue implements Parcelable {
         dest.writeInt(this.bgImage);
         dest.writeInt(this.position);
         dest.writeBoolean(this.isCurrentPage);
-    }
-
-    public Choice getWhatIf() {
-        return whatIf;
-    }
-
-    public void setWhatIf(Choice whatIf) {
-        this.whatIf = whatIf;
     }
 }

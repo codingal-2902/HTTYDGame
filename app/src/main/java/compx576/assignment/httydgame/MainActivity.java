@@ -40,19 +40,6 @@ public class MainActivity extends AppCompatActivity {
         String spName = "prefs";
         sharedPreferences = getSharedPreferences(spName, MODE_PRIVATE);
 
-        Button startGame = findViewById(R.id.start_game);
-        startGame.setOnClickListener(view -> {
-            Intent game = new Intent(MainActivity.this, GameActivity.class);
-            if (sharedPreferences.contains("pageNo") && sharedPreferences.contains("files")) {
-                game.putExtra("savedPage", sharedPreferences.getInt("pageNo", 0));
-                game.putExtra("files", Objects.requireNonNull(sharedPreferences.getStringSet("files", null)).toArray(new String[0]));
-            } else {
-                game.putExtra("savedPage", 0);
-                game.putExtra("files", new String[0]);
-            }
-            startActivity(game);
-        });
-
         BufferedReader reader;
         try {
             InputStream inputStream = getAssets().open("initAchievements.json");
@@ -71,7 +58,9 @@ public class MainActivity extends AppCompatActivity {
                 long id = (long) itemCopy.get("id");
                 String name = (String) itemCopy.get("name");
                 String description = (String) itemCopy.get("description");
-                Achievement newAchievement = new Achievement((int) id, name, description, false);
+                long multiplier = (long) itemCopy.get("multiplier");
+                String callFunction = (String) itemCopy.get("callFunction");
+                Achievement newAchievement = new Achievement((int) id, name, description, (int) multiplier, callFunction,false);
                 allAchievements.add(newAchievement);
             }
 
@@ -82,15 +71,30 @@ public class MainActivity extends AppCompatActivity {
                 achHolder.add(achString);
             }
 
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        if (!sharedPreferences.contains("aList")) {
-            editor.putStringSet("aList", achHolder);
-            editor.apply();
-        }
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            if (!sharedPreferences.contains("aList")) {
+                editor.putStringSet("aList", achHolder);
+                editor.apply();
+            }
 
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
+
+        Button startGame = findViewById(R.id.start_game);
+        startGame.setOnClickListener(view -> {
+            Intent game = new Intent(MainActivity.this, GameActivity.class);
+            if (sharedPreferences.contains("pageNo") && sharedPreferences.contains("files") && sharedPreferences.contains("aList") ) {
+                game.putExtra("savedPage", sharedPreferences.getInt("pageNo", 0));
+                game.putExtra("files", Objects.requireNonNull(sharedPreferences.getStringSet("files", null)).toArray(new String[0]));
+                game.putExtra("aList", Objects.requireNonNull(sharedPreferences.getStringSet("aList", null)).toArray(new String[0]));
+            } else {
+                game.putExtra("savedPage", 0);
+                game.putExtra("files", new String[0]);
+                game.putExtra("aList", new String[0]);
+            }
+            startActivity(game);
+        });
 
         Button achievementList = findViewById(R.id.viewAchievements);
         achievementList.setOnClickListener(view -> {

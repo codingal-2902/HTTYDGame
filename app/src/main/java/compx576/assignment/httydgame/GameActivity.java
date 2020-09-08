@@ -18,6 +18,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -39,7 +41,6 @@ public class GameActivity extends AppCompatActivity {
 
     private ImageView background;
     private Button proceedButton;
-    private Button returnButton;
     private Button choice1Button;
     private Button choice2Button;
     private TypeWriter dialog;
@@ -51,8 +52,10 @@ public class GameActivity extends AppCompatActivity {
     private Dialogue currentPage;
     private int pageNo;
     private int changeDayTime;
+    private int relMultiplier;
     private String pointInTime;
     private Set<String> loadedFiles;
+    private ArrayList<Achievement> achievements;
     protected SharedPreferences sharedPreferences;
 
     @SuppressLint("WrongViewCast")
@@ -67,9 +70,9 @@ public class GameActivity extends AppCompatActivity {
         loadedFiles = new ArraySet<>();
         pointInTime = "";
         changeDayTime = 0;
+        relMultiplier = 1;
 
         proceedButton = findViewById(R.id.proceed);
-        returnButton = findViewById(R.id.goBack);
         choice1Button = findViewById(R.id.choice1);
         choice2Button = findViewById(R.id.choice2);
         dialog = (TypeWriter) findViewById(R.id.chatter);
@@ -79,7 +82,6 @@ public class GameActivity extends AppCompatActivity {
         imageResources = getResources().obtainTypedArray(R.array.list);
 
         proceedButton.setVisibility(View.VISIBLE);
-        returnButton.setVisibility(View.INVISIBLE);
         choice1Button.setVisibility(View.INVISIBLE);
         choice2Button.setVisibility(View.INVISIBLE);
 
@@ -87,6 +89,17 @@ public class GameActivity extends AppCompatActivity {
 
         String spName = "prefs";
         sharedPreferences = getSharedPreferences(spName, MODE_PRIVATE);
+
+        Bundle bundle = getIntent().getExtras();
+        assert bundle != null;
+        String[] testDrive = (String[]) bundle.get("aList");
+
+        assert testDrive != null;
+        for (String gsonObj : testDrive) {
+            Gson gson = new Gson();
+            Achievement achievementObj = gson.fromJson(gsonObj, Achievement.class);
+            achievements.add(achievementObj);
+        }
 
         try {
             JSONObject charData = loadFile(getApplicationContext().getAssets().open("initialChars.json"));
@@ -111,8 +124,6 @@ public class GameActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        Bundle bundle = getIntent().getExtras();
-        assert bundle != null;
         pageNo = bundle.getInt("savedPage", 0);
         loadedFiles = new ArraySet<>(Arrays.asList(Objects.requireNonNull(bundle.getStringArray("files"))));
         if (loadedFiles.size() != 0) {
@@ -265,15 +276,23 @@ public class GameActivity extends AppCompatActivity {
 
         if (chars.size() == relChanges.length) {
             storedChar = characters.get(characters.indexOf(chars.get(0)));
-            storedChar.setRelationship(storedChar.getRelationship() + (int) relChanges[0]);
+            storedChar.setRelationship(storedChar.getRelationship() + ((int) relChanges[0]*relMultiplier));
         } else {
             for (int i = 0; i < offset; i++) {
                 storedChar = characters.get(characters.indexOf(chars.get(i)));
-                storedChar.setRelationship(storedChar.getRelationship() + (int) relChanges[(offset*whichChoice) + i]);
+                storedChar.setRelationship(storedChar.getRelationship() + ((int) relChanges[(offset*whichChoice) + i])*relMultiplier);
             }
         }
         String fileName = c.getNextFile()[whichChoice];
         loadNewScenes(fileName); loadedFiles.add(fileName);
+    }
+
+    protected void displayAchievement() {
+
+    }
+
+    protected void setRelMultiplier(int newMultiplier) {
+        relMultiplier = newMultiplier;
     }
 
     @Override
@@ -349,12 +368,23 @@ public class GameActivity extends AppCompatActivity {
                 c = new Choice(false, choice1, choice2, affectedChars, relChanges, additionalScenes);
             }
 
-            Dialogue newScene;
-            if (isDivergent != 0) {
-                newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, c);
-            } else {
-                newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, null);
+            String achievementDetails = (String) sceneCopy.get("unlockAchievement");
+            Achievement a = null;
+            if (achievementDetails != null) {
+                a = achievements.stream().filter(e->e.getName().equals(achievementDetails)).findFirst().orElse(null);
             }
+
+            Dialogue newScene;
+            if (isDivergent != 0 && achievementDetails != null) {
+                newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, c, a);
+            } else if (isDivergent != 0 && achievementDetails == null) {
+                newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, c, null);
+            } else if (isDivergent == 0 && achievementDetails != null) {
+                newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, null, a);
+            } else {
+                newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, null, null);
+            }
+
             pages.add(newScene);
             x++;
         }

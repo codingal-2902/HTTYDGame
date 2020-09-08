@@ -19,13 +19,13 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.lang.reflect.Method;
 
 public class AchievementList extends AppCompatActivity {
 
 //    protected SharedPreferences sp;
     protected ArrayList<Achievement> achievementList;
-
-    Intent intent = new Intent();
+    protected Intent intent = new Intent();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
