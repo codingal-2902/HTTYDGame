@@ -438,16 +438,7 @@ public class GameActivity extends AppCompatActivity {
                 a = achievements.stream().filter(e->e.getName().contains(achievementDetails)).findFirst().orElse(null);
             }
 
-            Dialogue newScene;
-            if (isDivergent != 0 && achievementDetails != null) {
-                newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, c, a);
-            } else if (isDivergent != 0 && achievementDetails == null) {
-                newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, c, null);
-            } else if (isDivergent == 0 && achievementDetails != null) {
-                newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, null, a);
-            } else {
-                newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, null, null);
-            }
+            Dialogue newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, c, a);
 
             pages.add(newScene);
             x++;
