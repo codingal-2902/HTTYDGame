@@ -16,7 +16,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -34,8 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -169,9 +166,7 @@ public class GameActivity extends AppCompatActivity {
         dialog.setText("");
         dialog.setCharacterDelay(50);
         dialog.animateText(Html.fromHtml(currentPage.getText()));
-        dialog.setOnClickListener(view -> {
-            dialog.removeDelay();
-        });
+        dialog.setOnClickListener(view -> dialog.removeDelay());
 
         proceedButton.setOnClickListener(view -> {
             pageNo++;
@@ -194,8 +189,6 @@ public class GameActivity extends AppCompatActivity {
                 closedialog.show();
                 chatterBox.setVisibility(View.INVISIBLE);
                 background.setImageDrawable(imageResources.getDrawable(pages.get(pageNo).getBgImage()));
-                speaker.setText("");
-                dialog.setText("");
 
                 final Timer timer2 = new Timer();
                 timer2.schedule(new TimerTask() {
@@ -390,15 +383,14 @@ public class GameActivity extends AppCompatActivity {
             JSONArray chatter = (JSONArray) sceneCopy.get("dialogue");
             StringBuilder sb = new StringBuilder();
             assert chatter != null;
-            chatter.forEach(line -> {
+            for (Object line : chatter) {
                 String lineObj = (String) line;
                 if (!lineObj.equals("")) {
                     sb.append(lineObj).append("\n");
                 }
-            });
+            }
             String name = (String) sceneCopy.get("speaker");
             long bgImageID = (long) sceneCopy.get("imageIDIndex");
-            long isDivergent = (long) sceneCopy.get("isDivergencePoint");
 
             if (sceneCopy.get("pointInTime") != null) {
                 pointInTime = (String) sceneCopy.get("pointInTime");
