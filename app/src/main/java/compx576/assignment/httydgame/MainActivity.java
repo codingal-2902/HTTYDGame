@@ -1,6 +1,5 @@
 package compx576.assignment.httydgame;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -85,10 +84,10 @@ public class MainActivity extends AppCompatActivity {
             Intent game = new Intent(MainActivity.this, GameActivity.class);
             if (sharedPreferences.contains("pageNo") && sharedPreferences.contains("files")) {
                 game.putExtra("savedPage", sharedPreferences.getInt("pageNo", 0));
-                game.putExtra("files", Objects.requireNonNull(sharedPreferences.getStringSet("files", null)).toArray(new String[0]));
+                game.putExtra("files", sharedPreferences.getString("files", ""));
             } else {
                 game.putExtra("savedPage", 0);
-                game.putExtra("files", new String[0]);
+                game.putExtra("files", "");
             }
             if (sharedPreferences.contains("aList")) {
                 game.putExtra("aList", Objects.requireNonNull(sharedPreferences.getStringSet("aList", null)).toArray(new String[0]));

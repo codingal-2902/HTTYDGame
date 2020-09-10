@@ -4,19 +4,22 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.content.res.TypedArray;
 import android.text.Html;
-import android.util.ArraySet;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 
@@ -31,6 +34,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -54,11 +58,11 @@ public class GameActivity extends AppCompatActivity {
     private int changeDayTime;
     private float relMultiplier;
     private String pointInTime;
-    private Set<String> loadedFiles;
+    private String loadedFiles;
     private ArrayList<Achievement> achievements;
     protected SharedPreferences sharedPreferences;
+    protected Intent intent = new Intent();
 
-    @SuppressLint("WrongViewCast")
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +71,7 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         pages = new ArrayList<>();
         characters = new ArrayList<>();
-        loadedFiles = new ArraySet<>();
+        loadedFiles = "";
         achievements = new ArrayList<>();
         pointInTime = "";
         changeDayTime = 0;
@@ -85,6 +89,9 @@ public class GameActivity extends AppCompatActivity {
         proceedButton.setVisibility(View.VISIBLE);
         choice1Button.setVisibility(View.INVISIBLE);
         choice2Button.setVisibility(View.INVISIBLE);
+
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         JSONArray initialChars = null;
 
@@ -126,9 +133,12 @@ public class GameActivity extends AppCompatActivity {
         }
 
         pageNo = bundle.getInt("savedPage", 0);
-        loadedFiles = new ArraySet<>(Arrays.asList(Objects.requireNonNull(bundle.getStringArray("files"))));
-        if (loadedFiles.size() != 0) {
-            for (String storedFile : loadedFiles) {
+        loadedFiles = bundle.getString("files");
+        assert loadedFiles != null;
+        String[] files = loadedFiles.split(",");
+
+        if (files.length != 0) {
+            for (String storedFile : files) {
                 try {
                     loadNewScenes(storedFile);
                 } catch (Exception e) {
@@ -239,6 +249,18 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == android.R.id.home){
+            intent.setClass(GameActivity.this, MainActivity.class);
+            startActivity(intent);
+            GameActivity.this.finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     protected void invertChoiceAndProceed(boolean condition) {
         if (condition) {
             proceedButton.setVisibility(View.VISIBLE);
@@ -261,7 +283,9 @@ public class GameActivity extends AppCompatActivity {
             choice2Button.setText(currentPage.getWhatIf().getChoice2());
         }
         if (currentPage.getAchievement() != null) {
-            displayAchievement(currentPage);
+            if (!currentPage.getAchievement().isUnlocked()) {
+                displayAchievement(currentPage);
+            }
         }
 //        repo.setCurrentPage(getApplicationContext(), position+1);
 //        repo.resetOldPage(getApplicationContext(), position);
@@ -288,20 +312,40 @@ public class GameActivity extends AppCompatActivity {
             }
         }
         String fileName = c.getNextFile()[whichChoice];
-        loadNewScenes(fileName); loadedFiles.add(fileName);
+        loadNewScenes(fileName);
+        if (loadedFiles.equals("")) {
+            loadedFiles = fileName;
+        } else {
+            loadedFiles = loadedFiles.concat(","+fileName);
+        }
     }
 
     protected void displayAchievement(Dialogue page) {
         Achievement a = page.getAchievement();
-        System.out.println(a.getMultiplier());
         setRelMultiplier(a.getMultiplier());
-        System.out.println(a);
+        achievements.get(achievements.indexOf(a)).setUnlocked(true);
+
+        LayoutInflater inflater = getLayoutInflater();
+
+        View toastLayout = inflater.inflate(R.layout.achievement_toast,
+                (ViewGroup) findViewById(R.id.toast_root_view));
+
+        TextView header = (TextView) toastLayout.findViewById(R.id.toast_header);
+        header.setText(a.getName());
+
+        TextView body = (TextView) toastLayout.findViewById(R.id.toast_body);
+        body.setText(a.getDescription());
+
+        Toast toast = new Toast(getApplicationContext());
+        toast.setGravity(Gravity.TOP, 0, 0);
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.setView(toastLayout);
+        toast.show();
     }
 
     protected void setRelMultiplier(String newMultiplier) {
         float floatVal = Float.parseFloat(newMultiplier);
         relMultiplier += floatVal;
-        System.out.println(relMultiplier);
     }
 
     @Override
@@ -310,7 +354,7 @@ public class GameActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
         editor.putInt("pageNo", pageNo);
-        editor.putStringSet("files", loadedFiles);
+        editor.putString("files", loadedFiles);
         editor.apply();
         System.out.println("onPause was called.");
     }

@@ -6,5 +6,11 @@
 			"dialogue":["Maybe it might work out this time. Let's get to it."],
 			"isDivergencePoint": 0,
 			"unlockAchievement": "This could be interesting..."
+		},
+		{
+			"imageIDIndex": 1,
+			"speaker":"Narrator",
+			"dialogue":["Finding time to work on both projects is difficult."],
+			"isDivergencePoint": 0
 		}]
 }
