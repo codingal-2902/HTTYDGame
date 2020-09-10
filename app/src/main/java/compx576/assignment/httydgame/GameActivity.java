@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.content.res.TypedArray;
 import android.text.Html;
+import android.util.ArraySet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -137,7 +138,7 @@ public class GameActivity extends AppCompatActivity {
         assert loadedFiles != null;
         String[] files = loadedFiles.split(",");
 
-        if (files.length != 0) {
+        if (!loadedFiles.equals("")) {
             for (String storedFile : files) {
                 try {
                     loadNewScenes(storedFile);
@@ -328,12 +329,12 @@ public class GameActivity extends AppCompatActivity {
         LayoutInflater inflater = getLayoutInflater();
 
         View toastLayout = inflater.inflate(R.layout.achievement_toast,
-                (ViewGroup) findViewById(R.id.toast_root_view));
+                findViewById(R.id.toast_root_view));
 
-        TextView header = (TextView) toastLayout.findViewById(R.id.toast_header);
+        TextView header = toastLayout.findViewById(R.id.toast_header);
         header.setText(a.getName());
 
-        TextView body = (TextView) toastLayout.findViewById(R.id.toast_body);
+        TextView body = toastLayout.findViewById(R.id.toast_body);
         body.setText(a.getDescription());
 
         Toast toast = new Toast(getApplicationContext());
@@ -348,13 +349,23 @@ public class GameActivity extends AppCompatActivity {
         relMultiplier += floatVal;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onPause() {
         super.onPause();
+
+        Set<String> achHolder = new ArraySet<>();
+        for (Achievement ach : achievements) {
+            Gson gson = new Gson();
+            String achString = gson.toJson(ach);
+            achHolder.add(achString);
+        }
+
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();
         editor.putInt("pageNo", pageNo);
         editor.putString("files", loadedFiles);
+        editor.putStringSet("aList", achHolder);
         editor.apply();
         System.out.println("onPause was called.");
     }

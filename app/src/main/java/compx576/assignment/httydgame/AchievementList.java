@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.lang.reflect.Method;
 
 public class AchievementList extends AppCompatActivity {
 
@@ -67,6 +66,7 @@ public class AchievementList extends AppCompatActivity {
     }
 
     static class ListAdapter extends ArrayAdapter<Achievement> {
+
         public ListAdapter(@NonNull Context context, ArrayList<Achievement> aList) {
             super(context, 0, aList);
         }
@@ -75,6 +75,10 @@ public class AchievementList extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             Achievement achievement = getItem(position);
+            assert achievement != null;
+
+            System.out.println(position + " " + achievement.getName());
+
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.activity_listview, parent, false);
             }
@@ -82,9 +86,15 @@ public class AchievementList extends AppCompatActivity {
             TextView label = convertView.findViewById(R.id.label);
             TextView desc = convertView.findViewById(R.id.desc);
 
-            assert achievement != null;
             label.setText(achievement.getName());
             desc.setText(achievement.getDescription());
+
+            if (achievement.isUnlocked()) {
+                desc.setTextColor(Color.GREEN);
+            } else {
+                desc.setTextColor(Color.parseColor("#bebebe"));
+            }
+
             return convertView;
         }
     }
