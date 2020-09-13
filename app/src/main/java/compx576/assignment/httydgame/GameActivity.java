@@ -427,7 +427,7 @@ public class GameActivity extends AppCompatActivity {
             String achievementDetails = (String) sceneCopy.get("unlockAchievement");
             Achievement a = null;
             if (achievementDetails != null) {
-                a = achievements.stream().filter(e->e.getName().contains(achievementDetails)).findFirst().orElse(null);
+                a = achievements.stream().filter(e -> e.getName().contains(achievementDetails)).findFirst().orElse(null);
             }
 
             Dialogue newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, c, a);
@@ -436,18 +436,6 @@ public class GameActivity extends AppCompatActivity {
             x++;
         }
     }
-
-//    @RequiresApi(api = Build.VERSION_CODES.N)
-//    protected String parseDialogue(JSONArray obj) {
-//        StringBuilder sb = new StringBuilder();
-//        obj.forEach(line -> {
-//            String lineObj = (String) line;
-//            if (!lineObj.equals("")) {
-//                sb.append(lineObj).append("\n");
-//            }
-//        });
-//        return sb.toString();
-//    }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public NPC findNPCinDB(String name) {
