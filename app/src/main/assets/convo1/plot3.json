@@ -1,9 +1,12 @@
 {"scenes": [
-  {
-    "imageIDIndex": 6,
-    "speaker": "Narrator",
-    "dialogue": ["After tucking the sketchbook into his vest, Hiccup takes note of what still needs doing on the Mangler."],
-    "isDivergencePoint": 0,
-    "unlockAchievement": "Business as usual."
-  }
+    {
+        "imageIDIndex": 6,
+        "speaker": "Narrator",
+        "dialogue": ["After tucking the sketchbook into his vest, Hiccup takes note of what still needs doing on the Mangler."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker": "",
+        "dialogue": ["convo1/plot3.json"]
+    }
 ]}

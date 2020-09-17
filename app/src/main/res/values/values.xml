@@ -8,5 +8,6 @@
         <item>@drawable/forge_interior</item>
         <item>@drawable/forge_hard_at_work</item>
         <item>@drawable/mangler</item>
+        <item>@drawable/group_shot</item>
     </array>
 </resources>

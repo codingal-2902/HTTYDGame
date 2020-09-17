@@ -4,7 +4,12 @@
 			"imageIDIndex":4,
 			"speaker":"Hiccup",
 			"dialogue":["This could definitely do with a few improvements..."],
-			"isDivergencePoint": 0,
 			"unlockAchievement": "Wasting time."
-		}]
+		},
+		{
+			"imageIDIndex": 0,
+			"speaker": "",
+			"dialogue": ["convo1/plot1.json"]
+		}
+	]
 }

@@ -57,6 +57,7 @@ public class GameActivity extends AppCompatActivity {
     private float relMultiplier;
     private String pointInTime;
     private String loadedFiles;
+    private String divergedConvo;
     private ArrayList<Achievement> achievements;
     protected SharedPreferences sharedPreferences;
     protected Intent intent = new Intent();
@@ -72,6 +73,7 @@ public class GameActivity extends AppCompatActivity {
         loadedFiles = "";
         achievements = new ArrayList<>();
         pointInTime = "";
+        divergedConvo = "";
         changeDayTime = 0;
         relMultiplier = 1;
 
@@ -267,6 +269,7 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     protected void grabNextSegment(int position) {
         currentPage = pages.get(position);
         dialog.setCharacterDelay(50);
@@ -307,17 +310,19 @@ public class GameActivity extends AppCompatActivity {
         }
         String fileName = c.getNextFile()[whichChoice];
         loadNewScenes(fileName);
-        if (loadedFiles.equals("")) {
-            loadedFiles = fileName;
-        } else {
-            loadedFiles = loadedFiles.concat(","+fileName);
-        }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     protected void displayAchievement(Dialogue page) {
         Achievement a = page.getAchievement();
         setRelMultiplier(a.getMultiplier());
         achievements.get(achievements.indexOf(a)).setUnlocked(true);
+
+        try {
+            loadNewScenes("chapter1.json");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         LayoutInflater inflater = getLayoutInflater();
 
@@ -374,6 +379,11 @@ public class GameActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     protected void loadNewScenes(String fileName) throws IOException, ParseException {
+        if (loadedFiles.equals("")) {
+            loadedFiles = fileName;
+        } else {
+            loadedFiles = loadedFiles.concat(","+fileName);
+        }
         JSONObject sceneData = loadFile(getApplicationContext().getAssets().open(fileName));
         JSONArray newScenes = (JSONArray) sceneData.get("scenes");
         assert newScenes != null;
@@ -381,8 +391,19 @@ public class GameActivity extends AppCompatActivity {
         for (Object scene : newScenes) {
             JSONObject sceneCopy = (JSONObject) scene;
             JSONArray chatter = (JSONArray) sceneCopy.get("dialogue");
-            StringBuilder sb = new StringBuilder();
             assert chatter != null;
+            String firstLine = (String) chatter.get(0);
+
+            if (firstLine.contains("convo1")) {
+                if (!fileName.contains("chapter")) {
+                    divergedConvo = firstLine;
+                } else {
+                    loadNewScenes(divergedConvo);
+                }
+                continue;
+            }
+
+            StringBuilder sb = new StringBuilder();
             for (Object line : chatter) {
                 String lineObj = (String) line;
                 if (!lineObj.equals("")) {
@@ -431,7 +452,6 @@ public class GameActivity extends AppCompatActivity {
             }
 
             Dialogue newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, c, a);
-
             pages.add(newScene);
             x++;
         }

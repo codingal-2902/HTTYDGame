@@ -1,10 +1,9 @@
 {"scenes":
 	[
 		{
-			"imageIDIndex":4,
+			"imageIDIndex": 4,
 			"speaker":"Hiccup",
-			"dialogue":["This could definitely do with a few improvements..."],
-			"isDivergencePoint": 0,
-			"unlockAchievement": "Wasting time."
-		}]
+			"dialogue":["This could definitely do with a few improvements..."]
+		}
+	]
 }
