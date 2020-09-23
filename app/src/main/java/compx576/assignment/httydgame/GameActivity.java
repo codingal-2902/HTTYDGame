@@ -122,7 +122,7 @@ public class GameActivity extends AppCompatActivity {
             JSONObject charCopy = (JSONObject) character;
             String charName = (String) charCopy.get("name");
             long relLevel = (long) charCopy.get("relationship");
-            NPC newCharacter = new NPC(charName, (int) relLevel, false);
+            NPC newCharacter = new NPC(charName, (int) relLevel);
             characters.add(newCharacter);
         }
 

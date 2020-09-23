@@ -26,7 +26,7 @@ public class NPC implements Parcelable {
         relationship = in.readFloat();
     }
 
-    public NPC(String name, float initialRelLevel, boolean isSpeaker) {
+    public NPC(String name, float initialRelLevel) {
         this.charName = name;
         this.relationship = initialRelLevel;
     }

@@ -1,11 +1,19 @@
 package compx576.assignment.httydgame;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity(tableName = "achievements")
 public class Achievement {
 
+    @PrimaryKey
     private int id;
+    @ColumnInfo(name = "achievementName")
     private String name;
     private String description;
     private String multiplier;
+    @ColumnInfo(name = "isUnlocked")
     private boolean isUnlocked;
 
     public Achievement(int id, String name, String description, String multiplier, boolean isUnlocked) {
