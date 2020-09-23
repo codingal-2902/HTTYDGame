@@ -7,8 +7,8 @@
     {
         "imageIDIndex": 0,
         "speaker": "",
-        "dialogue":["convo1/plot1.json", "convo1/plot2.json", "convo1/plot3.json"],
-        "relLevels": [-10, 30, 0]
+        "dialogue":["convo1/plot1.json", "convo1/plot3.json", "convo1/plot2.json"],
+        "relLevels": [-10, 0, 30]
     },
     {
         "imageIDIndex": 0,

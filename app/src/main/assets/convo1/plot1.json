@@ -1,9 +1,14 @@
 {"scenes":
 	[
 		{
-			"imageIDIndex": 4,
-			"speaker":"Hiccup",
-			"dialogue":["This could definitely do with a few improvements..."]
+			"imageIDIndex": 7,
+			"speaker":"Narrator",
+			"dialogue":["This is a placeholder."]
+		},
+		{
+			"imageIDIndex": 7,
+			"speaker":"Narrator",
+			"dialogue":["Since your chose the worst option, the following conversation goes badly"]
 		}
 	]
 }

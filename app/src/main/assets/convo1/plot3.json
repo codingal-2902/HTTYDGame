@@ -1,12 +1,13 @@
 {"scenes": [
     {
-        "imageIDIndex": 6,
-        "speaker": "Narrator",
-        "dialogue": ["After tucking the sketchbook into his vest, Hiccup takes note of what still needs doing on the Mangler."]
+        "imageIDIndex": 7,
+        "speaker":"Narrator",
+        "dialogue":["This is a placeholder."]
     },
     {
-        "imageIDIndex": 0,
-        "speaker": "",
-        "dialogue": ["convo1/plot3.json"]
+        "imageIDIndex": 7,
+        "speaker":"Narrator",
+        "dialogue":["You chose the neutral option, so the conversation goes as you would expect."]
     }
+
 ]}

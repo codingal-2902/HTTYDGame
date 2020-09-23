@@ -6,7 +6,6 @@
 			"dialogue":["Hiccup picks up his sketchbook and looks around the shop for inspiration.<br/>",
 				"A discarded bucket makes him think of the fire brigade, and how ineffective they were in the last raid.<br/>",
 				"Then again, his track record for helping the village is not good."],
-			"isDivergencePoint": 1,
 			"choice": {
 				"ChoiceOne": "Work on different version of the Mangler.",
 				"ChoiceTwo": "Find a possible solution for the fire brigade.",

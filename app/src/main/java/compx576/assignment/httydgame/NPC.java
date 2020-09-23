@@ -18,21 +18,17 @@ public class NPC implements Parcelable {
     private String charName;
     @ColumnInfo(name = "relLevel")
     private float relationship;
-    @ColumnInfo(name = "isSpeaker")
-    private boolean currentSpeaker;
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     protected NPC(Parcel in) {
         pk = in.readInt();
         charName = in.readString();
         relationship = in.readFloat();
-        currentSpeaker = in.readBoolean();
     }
 
     public NPC(String name, float initialRelLevel, boolean isSpeaker) {
         this.charName = name;
         this.relationship = initialRelLevel;
-        this.currentSpeaker = isSpeaker;
     }
 
     public int getPk() {
@@ -47,10 +43,6 @@ public class NPC implements Parcelable {
         return this.relationship;
     }
 
-    public boolean isCurrentSpeaker() {
-        return this.currentSpeaker;
-    }
-
     public void setPk(int pk) {
         this.pk = pk;
     }
@@ -63,9 +55,6 @@ public class NPC implements Parcelable {
         this.relationship = relationship;
     }
 
-    public void setCurrentSpeaker(boolean currentSpeaker) {
-        this.currentSpeaker = currentSpeaker;
-    }
 
     public static final Creator<NPC> CREATOR = new Creator<NPC>() {
         @Override
@@ -90,6 +79,5 @@ public class NPC implements Parcelable {
         parcel.writeInt(pk);
         parcel.writeString(charName);
         parcel.writeFloat(relationship);
-        parcel.writeBoolean(currentSpeaker);
     }
 }

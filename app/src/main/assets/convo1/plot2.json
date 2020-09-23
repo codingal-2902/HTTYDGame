@@ -1,9 +1,14 @@
 {"scenes":
 	[
 		{
-			"imageIDIndex": 4,
-			"speaker":"Hiccup",
-			"dialogue":["Maybe it might work out this time. Let's get to it."]
+			"imageIDIndex": 7,
+			"speaker":"Narrator",
+			"dialogue":["This is a placeholder."]
+		},
+		{
+			"imageIDIndex": 7,
+			"speaker":"Narrator",
+			"dialogue":["Good on you for choosing the best option.", "Hiccup has earned a modicum of respect from his peers."]
 		}
 	]
 }

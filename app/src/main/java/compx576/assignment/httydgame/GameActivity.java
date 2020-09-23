@@ -395,11 +395,20 @@ public class GameActivity extends AppCompatActivity {
             String firstLine = (String) chatter.get(0);
 
             if (firstLine.contains("convo1")) {
-                if (!fileName.contains("chapter")) {
-                    divergedConvo = firstLine;
-                } else {
-                    loadNewScenes(divergedConvo);
+                JSONArray relThreshold = (JSONArray) sceneCopy.get("relLevels");
+                assert relThreshold != null;
+                long[] threshold = new long[relThreshold.size()];
+                for (int i = 0; i < threshold.length; i++) {
+                    threshold[i] = (long) relThreshold.get(i);
                 }
+                String[] plotNames = new String[chatter.size()];
+                for (int i = 0; i < plotNames.length; i++) {
+                    plotNames[i] = (String) chatter.get(i);
+                }
+
+                NPC testChar = findNPCinDB("Village");
+                divergedConvo = getDivergentConversation(testChar, threshold, plotNames);
+                loadNewScenes(divergedConvo);
                 continue;
             }
 
@@ -455,6 +464,30 @@ public class GameActivity extends AppCompatActivity {
             pages.add(newScene);
             x++;
         }
+    }
+
+    protected String getDivergentConversation(NPC character, long[] threshold, String[] plots) {
+        int length = threshold.length;
+        String plotName = "";
+
+        if (length == 1) {
+            if (character.getRelationship() <= threshold[0]) {
+                plotName = plots[0];
+            } else {
+                plotName = plots[1];
+            }
+        } else {
+            for (int i = 1; i < length; i++) {
+                if (character.getRelationship() <= threshold[i-1]) {
+                    plotName = plots[i-1];
+                } else if (threshold[i-1] < character.getRelationship() && character.getRelationship() <= threshold[i]) {
+                    plotName = plots[i];
+                } else if (character.getRelationship() > threshold[i]) {
+                    plotName = plots[i];
+                }
+            }
+        }
+        return plotName;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
