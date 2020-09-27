@@ -11,7 +11,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "dialogue")
-public class Dialogue implements Parcelable {
+public class Dialogue {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "pk")
     private int position;
@@ -19,42 +19,20 @@ public class Dialogue implements Parcelable {
     private String text;
     private String charName;
     private int bgImage;
-    private Achievement hasAchievement;
 
     @ColumnInfo(name = "isCurrentPage")
     private boolean isCurrentPage;
-    private Choice whatIf;
+    private String whatIf;
+    private String hasAchievement;
 
-    public Dialogue(String text, String charName, int bgImage, boolean isCurrentPage, Choice whatIf, Achievement unlockedSomething) {
+    public Dialogue(String text, String charName, int bgImage, boolean isCurrentPage, String whatIf, String hasAchievement) {
         this.text = text;
         this.charName = charName;
         this.bgImage = bgImage;
         this.isCurrentPage = isCurrentPage;
         this.whatIf = whatIf;
-        this.hasAchievement = unlockedSomething;
+        this.hasAchievement = hasAchievement;
     }
-
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    protected Dialogue(Parcel in) {
-        this.charName = in.readString();
-        this.text = in.readString();
-        this.bgImage = in.readInt();
-        this.position = in.readInt();
-        this.isCurrentPage = in.readBoolean();
-    }
-
-    public static final Creator<Dialogue> CREATOR = new Creator<Dialogue>() {
-        @RequiresApi(api = Build.VERSION_CODES.Q)
-        @Override
-        public Dialogue createFromParcel(Parcel in) {
-            return new Dialogue(in);
-        }
-
-        @Override
-        public Dialogue[] newArray(int size) {
-            return new Dialogue[size];
-        }
-    };
 
     public void setBgImage(int bgImage) {
         this.bgImage = bgImage;
@@ -76,11 +54,11 @@ public class Dialogue implements Parcelable {
         this.isCurrentPage = currentPage;
     }
 
-    public void setWhatIf(Choice whatIf) {
+    public void setWhatIf(String whatIf) {
         this.whatIf = whatIf;
     }
 
-    public void setAchievement(Achievement hasAchievement) {
+    public void setAchievement(String hasAchievement) {
         this.hasAchievement = hasAchievement;
     }
 
@@ -106,26 +84,11 @@ public class Dialogue implements Parcelable {
         return this.isCurrentPage;
     }
 
-    public Choice getWhatIf() {
+    public String getWhatIf() {
         return this.whatIf;
     }
 
-    public Achievement getAchievement() {
+    public String hasAchievement() {
         return this.hasAchievement;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(this.charName);
-        dest.writeString(this.text);
-        dest.writeInt(this.bgImage);
-        dest.writeInt(this.position);
-        dest.writeBoolean(this.isCurrentPage);
     }
 }

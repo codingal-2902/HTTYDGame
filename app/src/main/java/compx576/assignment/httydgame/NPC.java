@@ -10,7 +10,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "characters")
-public class NPC implements Parcelable {
+public class NPC {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "pk")
     private int pk;
@@ -19,16 +19,9 @@ public class NPC implements Parcelable {
     @ColumnInfo(name = "relLevel")
     private float relationship;
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    protected NPC(Parcel in) {
-        pk = in.readInt();
-        charName = in.readString();
-        relationship = in.readFloat();
-    }
-
-    public NPC(String name, float initialRelLevel) {
-        this.charName = name;
-        this.relationship = initialRelLevel;
+    public NPC(String charName, float relationship) {
+        this.charName = charName;
+        this.relationship = relationship;
     }
 
     public int getPk() {
@@ -53,31 +46,5 @@ public class NPC implements Parcelable {
 
     public void setRelationship(float relationship) {
         this.relationship = relationship;
-    }
-
-
-    public static final Creator<NPC> CREATOR = new Creator<NPC>() {
-        @Override
-        public NPC createFromParcel(Parcel in) {
-            return new NPC(in);
-        }
-
-        @Override
-        public NPC[] newArray(int size) {
-            return new NPC[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeInt(pk);
-        parcel.writeString(charName);
-        parcel.writeFloat(relationship);
     }
 }

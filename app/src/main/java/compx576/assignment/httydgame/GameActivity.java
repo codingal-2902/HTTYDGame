@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -41,6 +40,7 @@ import java.util.TimerTask;
 
 public class GameActivity extends AppCompatActivity {
 
+    private GameRepository gameRepo;
     private ImageView background;
     private Button proceedButton;
     private Button choice1Button;
@@ -57,10 +57,10 @@ public class GameActivity extends AppCompatActivity {
     private float relMultiplier;
     private String pointInTime;
     private String loadedFiles;
-    private String divergedConvo;
-    private ArrayList<Achievement> achievements;
+    private List<Achievement> achievements;
     protected SharedPreferences sharedPreferences;
     protected Intent intent = new Intent();
+    protected Gson gson = new Gson();
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
@@ -68,14 +68,25 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         System.out.println("onCreate was called.");
         setContentView(R.layout.activity_main);
-        pages = new ArrayList<>();
-        characters = new ArrayList<>();
+
+        gameRepo = new GameRepository();
+        Bundle bundle = getIntent().getExtras();
+        assert bundle != null;
+        if (gameRepo.getAllScenes(getApplicationContext()).size() == 0) {
+            gameRepo.initGame(getApplicationContext(), bundle);
+        }
+
+        String spName = "prefs";
+        sharedPreferences = getApplicationContext().getSharedPreferences(spName, MODE_PRIVATE);
+
+        pages = gameRepo.getAllScenes(getApplicationContext());
+        characters = gameRepo.getAllNPCs(getApplicationContext());
         loadedFiles = "";
-        achievements = new ArrayList<>();
+        achievements = gameRepo.getAchievements(getApplicationContext());
         pointInTime = "";
-        divergedConvo = "";
         changeDayTime = 0;
         relMultiplier = 1;
+        pageNo = 1;
 
         proceedButton = findViewById(R.id.proceed);
         choice1Button = findViewById(R.id.choice1);
@@ -93,75 +104,24 @@ public class GameActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        JSONArray initialChars = null;
-
-        String spName = "prefs";
-        sharedPreferences = getSharedPreferences(spName, MODE_PRIVATE);
-
-        Bundle bundle = getIntent().getExtras();
-        assert bundle != null;
-        String[] testDrive = (String[]) bundle.get("aList");
-
-        assert testDrive != null;
-        for (String gsonObj : testDrive) {
-            Gson gson = new Gson();
-            Achievement achievementObj = gson.fromJson(gsonObj, Achievement.class);
-            achievements.add(achievementObj);
-        }
-
-        try {
-            JSONObject charData = loadFile(getApplicationContext().getAssets().open("initialChars.json"));
-            initialChars = (JSONArray) charData.get("characters");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        assert initialChars != null;
-
-        for (Object character : initialChars) {
-            JSONObject charCopy = (JSONObject) character;
-            String charName = (String) charCopy.get("name");
-            long relLevel = (long) charCopy.get("relationship");
-            NPC newCharacter = new NPC(charName, (int) relLevel);
-            characters.add(newCharacter);
-        }
-
-        try {
-            loadNewScenes("tutorial.json");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        pageNo = bundle.getInt("savedPage", 0);
-        loadedFiles = bundle.getString("files");
-        assert loadedFiles != null;
-        String[] files = loadedFiles.split(",");
-
-        if (!loadedFiles.equals("")) {
-            for (String storedFile : files) {
-                try {
-                    loadNewScenes(storedFile);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        currentPage = gameRepo.getPage(getApplicationContext(), pageNo);
 
         if (pageNo > 0) {
             proceedButton.setVisibility(View.VISIBLE);
         }
 
-        if (pages.get(pageNo).getWhatIf() != null) {
-            if (!pages.get(pageNo).getWhatIf().alreadyBeenSeen()) {
-                invertChoiceAndProceed(false);
-                choice1Button.setText(pages.get(pageNo).getWhatIf().getChoice1());
-                choice2Button.setText(pages.get(pageNo).getWhatIf().getChoice2());
+        if (currentPage.getWhatIf() != null) {
+            Choice c = gson.fromJson(currentPage.getWhatIf(), Choice.class);
+            if (c != null) {
+                if (!c.alreadyBeenSeen()) {
+                    invertChoiceAndProceed(false);
+                    choice1Button.setText(c.getChoice1());
+                    choice2Button.setText(c.getChoice2());
+                }
             }
         } else {
             invertChoiceAndProceed(true);
         }
-
-        currentPage = pages.get(pageNo);
 
         background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
         speaker.setText(Html.fromHtml(currentPage.getCharName()));
@@ -172,11 +132,11 @@ public class GameActivity extends AppCompatActivity {
 
         proceedButton.setOnClickListener(view -> {
             pageNo++;
-            if (pageNo == changeDayTime) {
+            if (pageNo == gameRepo.getDayTime()) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
                 TextView title = new TextView(this);
 
-                title.setText(pointInTime);
+                title.setText(gameRepo.getPointInTime());
                 title.setBackgroundColor(Color.DKGRAY);
                 title.setPadding(10, 10, 10, 10);
                 title.setGravity(Gravity.CENTER);
@@ -190,7 +150,7 @@ public class GameActivity extends AppCompatActivity {
 
                 closedialog.show();
                 chatterBox.setVisibility(View.INVISIBLE);
-                background.setImageDrawable(imageResources.getDrawable(pages.get(pageNo).getBgImage()));
+                background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
 
                 final Timer timer2 = new Timer();
                 timer2.schedule(new TimerTask() {
@@ -212,21 +172,25 @@ public class GameActivity extends AppCompatActivity {
             } else {
                 grabNextSegment(pageNo);
             }
-            if (pages.get(pageNo).getWhatIf() == null) {
+            if (currentPage.getWhatIf() == null) {
                 invertChoiceAndProceed(true);
             } else {
-                if (pages.get(pageNo).getWhatIf().alreadyBeenSeen()) {
-                    invertChoiceAndProceed(true);
-                } else {
-                    invertChoiceAndProceed(false);
+                Choice c = gson.fromJson(currentPage.getWhatIf(), Choice.class);
+                if (c != null) {
+                    if (c.alreadyBeenSeen()) {
+                        invertChoiceAndProceed(true);
+                    } else {
+                        invertChoiceAndProceed(false);
+                    }
                 }
             }
         });
 
         choice1Button.setOnClickListener(view -> {
             try {
-                makeChoice(pages.get(pageNo).getWhatIf(), 0);
-                pages.get(pageNo).getWhatIf().setAlreadySeen(true);
+                Choice c = gson.fromJson(currentPage.getWhatIf(), Choice.class);
+                makeChoice(c, 0);
+                c.setAlreadySeen(true);
                 pageNo++;
                 grabNextSegment(pageNo);
             } catch (Exception e) {
@@ -235,8 +199,9 @@ public class GameActivity extends AppCompatActivity {
         });
         choice2Button.setOnClickListener(view -> {
             try {
-                makeChoice(pages.get(pageNo).getWhatIf(), 1);
-                pages.get(pageNo).getWhatIf().setAlreadySeen(true);
+                Choice c = gson.fromJson(currentPage.getWhatIf(), Choice.class);
+                makeChoice(c, 1);
+                c.setAlreadySeen(true);
                 pageNo++;
                 grabNextSegment(pageNo);
             } catch (Exception e) {
@@ -271,17 +236,24 @@ public class GameActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     protected void grabNextSegment(int position) {
-        currentPage = pages.get(position);
+        currentPage = gameRepo.getPage(getApplicationContext(), position);
         dialog.setCharacterDelay(50);
-        if (currentPage.getWhatIf() == null) {
+        if (currentPage.getWhatIf().equals("")) {
             invertChoiceAndProceed(true);
         } else {
-            choice1Button.setText(currentPage.getWhatIf().getChoice1());
-            choice2Button.setText(currentPage.getWhatIf().getChoice2());
+            Choice c = gson.fromJson(currentPage.getWhatIf(), Choice.class);
+            if (c != null) {
+                invertChoiceAndProceed(false);
+                choice1Button.setText(c.getChoice1());
+                choice2Button.setText(c.getChoice2());
+            }
         }
-        if (currentPage.getAchievement() != null) {
-            if (!currentPage.getAchievement().isUnlocked()) {
-                displayAchievement(currentPage);
+        if (!currentPage.hasAchievement().equals("")) {
+            Achievement a = gson.fromJson(currentPage.hasAchievement(), Achievement.class);
+            if (a != null) {
+                if (!a.isUnlocked()) {
+                    displayAchievement(currentPage);
+                }
             }
         }
 //        repo.setCurrentPage(getApplicationContext(), position+1);
@@ -300,7 +272,7 @@ public class GameActivity extends AppCompatActivity {
         NPC storedChar;
 
         if (chars.size() == relChanges.length) {
-            storedChar = characters.get(characters.indexOf(chars.get(0)));
+            storedChar = characters.get(0);
             storedChar.setRelationship(storedChar.getRelationship() + ((int) relChanges[0]*relMultiplier));
         } else {
             for (int i = 0; i < offset; i++) {
@@ -309,17 +281,24 @@ public class GameActivity extends AppCompatActivity {
             }
         }
         String fileName = c.getNextFile()[whichChoice];
-        loadNewScenes(fileName);
+        gameRepo.loadNewScenes(getApplicationContext(), fileName);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     protected void displayAchievement(Dialogue page) {
-        Achievement a = page.getAchievement();
+        String achString = page.hasAchievement();
+        Achievement a = gson.fromJson(achString, Achievement.class);
         setRelMultiplier(a.getMultiplier());
-        achievements.get(achievements.indexOf(a)).setUnlocked(true);
+
+        for (Achievement ach : achievements) {
+            if (a.getName().equals(ach.getName())) {
+                ach.setUnlocked(true);
+                break;
+            }
+        }
 
         try {
-            loadNewScenes("chapter1.json");
+            gameRepo.loadNewScenes(getApplicationContext(), "chapter1.json");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -354,7 +333,6 @@ public class GameActivity extends AppCompatActivity {
 
         Set<String> achHolder = new ArraySet<>();
         for (Achievement ach : achievements) {
-            Gson gson = new Gson();
             String achString = gson.toJson(ach);
             achHolder.add(achString);
         }
@@ -377,121 +355,116 @@ public class GameActivity extends AppCompatActivity {
         return fileData;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    protected void loadNewScenes(String fileName) throws IOException, ParseException {
-        if (loadedFiles.equals("")) {
-            loadedFiles = fileName;
-        } else {
-            loadedFiles = loadedFiles.concat(","+fileName);
-        }
-        JSONObject sceneData = loadFile(getApplicationContext().getAssets().open(fileName));
-        JSONArray newScenes = (JSONArray) sceneData.get("scenes");
-        assert newScenes != null;
-        int x = 0;
-        for (Object scene : newScenes) {
-            JSONObject sceneCopy = (JSONObject) scene;
-            JSONArray chatter = (JSONArray) sceneCopy.get("dialogue");
-            assert chatter != null;
-            String firstLine = (String) chatter.get(0);
-
-            if (firstLine.contains("convo1")) {
-                JSONArray relThreshold = (JSONArray) sceneCopy.get("relLevels");
-                assert relThreshold != null;
-                long[] threshold = new long[relThreshold.size()];
-                for (int i = 0; i < threshold.length; i++) {
-                    threshold[i] = (long) relThreshold.get(i);
-                }
-                String[] plotNames = new String[chatter.size()];
-                for (int i = 0; i < plotNames.length; i++) {
-                    plotNames[i] = (String) chatter.get(i);
-                }
-
-                NPC testChar = findNPCinDB("Village");
-                divergedConvo = getDivergentConversation(testChar, threshold, plotNames);
-                loadNewScenes(divergedConvo);
-                continue;
-            }
-
-            StringBuilder sb = new StringBuilder();
-            for (Object line : chatter) {
-                String lineObj = (String) line;
-                if (!lineObj.equals("")) {
-                    sb.append(lineObj).append("\n");
-                }
-            }
-            String name = (String) sceneCopy.get("speaker");
-            long bgImageID = (long) sceneCopy.get("imageIDIndex");
-
-            if (sceneCopy.get("pointInTime") != null) {
-                pointInTime = (String) sceneCopy.get("pointInTime");
-                changeDayTime = x;
-            }
-
-            JSONObject choiceDetails = (JSONObject) sceneCopy.get("choice");
-            Choice c = null;
-            if (choiceDetails != null) {
-                String choice1 = (String) choiceDetails.get("ChoiceOne");
-                String choice2 = (String) choiceDetails.get("ChoiceTwo");
-                JSONArray chars = (JSONArray) choiceDetails.get("charNames");
-                assert chars != null;
-                List<NPC> affectedChars = new ArrayList<>();
-                for (Object charName : chars) {
-                    String nameCopy = (String) charName;
-                    affectedChars.add(findNPCinDB(nameCopy));
-                }
-                JSONArray changes = (JSONArray) choiceDetails.get("relChange");
-                assert changes != null;
-                long[] relChanges = new long[changes.size()];
-                for (int i = 0; i < changes.size(); i++) {
-                    relChanges[i] = (long) changes.get(i);
-                }
-                JSONArray files = (JSONArray) choiceDetails.get("fileToOpen");
-                assert files != null;
-                String[] additionalScenes = new String[files.size()];
-                for (int j = 0; j < files.size(); j++) {
-                    additionalScenes[j] = (String) files.get(j);
-                }
-                c = new Choice(false, choice1, choice2, affectedChars, relChanges, additionalScenes);
-            }
-
-            String achievementDetails = (String) sceneCopy.get("unlockAchievement");
-            Achievement a = null;
-            if (achievementDetails != null) {
-                a = achievements.stream().filter(e -> e.getName().contains(achievementDetails)).findFirst().orElse(null);
-            }
-
-            Dialogue newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, c, a);
-            pages.add(newScene);
-            x++;
-        }
-    }
-
-    protected String getDivergentConversation(NPC character, long[] threshold, String[] plots) {
-        int length = threshold.length;
-        String plotName = "";
-
-        if (length == 1) {
-            if (character.getRelationship() <= threshold[0]) {
-                plotName = plots[0];
-            } else {
-                plotName = plots[1];
-            }
-        } else {
-            for (int i = 1; i < length; i++) {
-                if (character.getRelationship() <= threshold[i-1]) {
-                    plotName = plots[i-1];
-                } else if (threshold[i-1] < character.getRelationship() && character.getRelationship() <= threshold[i]) {
-                    plotName = plots[i];
-                } else if (character.getRelationship() > threshold[i]) {
-                    plotName = plots[i];
-                }
-            }
-        }
-        return plotName;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    public NPC findNPCinDB(String name) {
-        return characters.stream().filter(e->e.getCharName().equals(name)).findFirst().orElse(null);
-    }
+//    @RequiresApi(api = Build.VERSION_CODES.N)
+//    protected void loadNewScenes(String fileName) throws IOException, ParseException {
+//        if (loadedFiles.equals("")) {
+//            loadedFiles = fileName;
+//        } else {
+//            loadedFiles = loadedFiles.concat(","+fileName);
+//        }
+//        JSONObject sceneData = loadFile(getApplicationContext().getAssets().open(fileName));
+//        JSONArray newScenes = (JSONArray) sceneData.get("scenes");
+//        assert newScenes != null;
+//        int x = 0;
+//        for (Object scene : newScenes) {
+//            JSONObject sceneCopy = (JSONObject) scene;
+//            JSONArray chatter = (JSONArray) sceneCopy.get("dialogue");
+//            assert chatter != null;
+//            String firstLine = (String) chatter.get(0);
+//
+//            if (firstLine.contains("convo1")) {
+//                JSONArray relThreshold = (JSONArray) sceneCopy.get("relLevels");
+//                assert relThreshold != null;
+//                long[] threshold = new long[relThreshold.size()];
+//                for (int i = 0; i < threshold.length; i++) {
+//                    threshold[i] = (long) relThreshold.get(i);
+//                }
+//                String[] plotNames = new String[chatter.size()];
+//                for (int i = 0; i < plotNames.length; i++) {
+//                    plotNames[i] = (String) chatter.get(i);
+//                }
+//
+//                NPC testChar = findNPCinDB("Village");
+//                divergedConvo = getDivergentConversation(testChar, threshold, plotNames);
+//                loadNewScenes(divergedConvo);
+//                continue;
+//            }
+//
+//            StringBuilder sb = new StringBuilder();
+//            for (Object line : chatter) {
+//                String lineObj = (String) line;
+//                if (!lineObj.equals("")) {
+//                    sb.append(lineObj).append("\n");
+//                }
+//            }
+//            String name = (String) sceneCopy.get("speaker");
+//            long bgImageID = (long) sceneCopy.get("imageIDIndex");
+//
+//            if (sceneCopy.get("pointInTime") != null) {
+//                pointInTime = (String) sceneCopy.get("pointInTime");
+//                changeDayTime = x;
+//            }
+//
+//            JSONObject choiceDetails = (JSONObject) sceneCopy.get("choice");
+//            Choice c = null;
+//            if (choiceDetails != null) {
+//                String choice1 = (String) choiceDetails.get("ChoiceOne");
+//                String choice2 = (String) choiceDetails.get("ChoiceTwo");
+//                JSONArray chars = (JSONArray) choiceDetails.get("charNames");
+//                assert chars != null;
+//                List<NPC> affectedChars = new ArrayList<>();
+//                for (Object charName : chars) {
+//                    String nameCopy = (String) charName;
+//                    affectedChars.add(findNPCinDB(nameCopy));
+//                }
+//                JSONArray changes = (JSONArray) choiceDetails.get("relChange");
+//                assert changes != null;
+//                long[] relChanges = new long[changes.size()];
+//                for (int i = 0; i < changes.size(); i++) {
+//                    relChanges[i] = (long) changes.get(i);
+//                }
+//                JSONArray files = (JSONArray) choiceDetails.get("fileToOpen");
+//                assert files != null;
+//                String[] additionalScenes = new String[files.size()];
+//                for (int j = 0; j < files.size(); j++) {
+//                    additionalScenes[j] = (String) files.get(j);
+//                }
+//                c = new Choice(false, choice1, choice2, affectedChars, relChanges, additionalScenes);
+//            }
+//
+//            String achievementDetails = (String) sceneCopy.get("unlockAchievement");
+//            Achievement a = null;
+//            if (achievementDetails != null) {
+//                a = achievements.stream().filter(e -> e.getName().contains(achievementDetails)).findFirst().orElse(null);
+//            }
+//
+//            Dialogue newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, c, a);
+//            pages.add(newScene);
+//            x++;
+//        }
+//    }
+//
+//    protected String getDivergentConversation(NPC character, long[] threshold, String[] plots) {
+//        int length = threshold.length;
+//        String plotName = "";
+//
+//        if (length == 1) {
+//            if (character.getRelationship() <= threshold[0]) {
+//                plotName = plots[0];
+//            } else {
+//                plotName = plots[1];
+//            }
+//        } else {
+//            for (int i = 1; i < length; i++) {
+//                if (character.getRelationship() <= threshold[i-1]) {
+//                    plotName = plots[i-1];
+//                } else if (threshold[i-1] < character.getRelationship() && character.getRelationship() <= threshold[i]) {
+//                    plotName = plots[i];
+//                } else if (character.getRelationship() > threshold[i]) {
+//                    plotName = plots[i];
+//                }
+//            }
+//        }
+//        return plotName;
+//    }
 }

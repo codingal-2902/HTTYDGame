@@ -8,23 +8,13 @@ import androidx.annotation.RequiresApi;
 
 import java.util.List;
 
-public class Choice implements Parcelable {
+public class Choice{
     private String choice1;
     private String choice2;
     private List<NPC> affectedChar;
     private long[] levelChange;
     private String[] nextFile;
     private boolean alreadySeen;
-
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    protected Choice(Parcel in) {
-        choice1 = in.readString();
-        choice2 = in.readString();
-        affectedChar = in.createTypedArrayList(NPC.CREATOR);
-        levelChange = in.createLongArray();
-        nextFile = in.createStringArray();
-        alreadySeen = in.readBoolean();
-    }
 
     public Choice(boolean alreadySeen, String choice1, String choice2, List<NPC> affectedChars, long[] levelChange, String[] nextFile) {
         this.choice1 = choice1;
@@ -81,32 +71,5 @@ public class Choice implements Parcelable {
 
     public boolean alreadyBeenSeen() {
         return this.alreadySeen;
-    }
-
-    public static final Creator<Choice> CREATOR = new Creator<Choice>() {
-        @RequiresApi(api = Build.VERSION_CODES.Q)
-        @Override
-        public Choice createFromParcel(Parcel in) {
-            return new Choice(in);
-        }
-
-        @Override
-        public Choice[] newArray(int size) {
-            return new Choice[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(choice1);
-        parcel.writeString(choice2);
-        parcel.writeTypedList(affectedChar);
-        parcel.writeLongArray(levelChange);
-        parcel.writeStringArray(nextFile);
     }
 }
