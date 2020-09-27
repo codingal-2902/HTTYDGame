@@ -272,6 +272,14 @@ public class GameRepository {
         return getGameDB(context).dialogueDAO().getAll();
     }
 
+    public NPC getCharByName(Context context, String name) {
+        return getGameDB(context).npcDAO().findNPCByName(name);
+    }
+
+    public void updateRelationship(Context context, String charName, int newValue) {
+        getGameDB(context).npcDAO().updateRelationship(charName, newValue);
+    }
+
     public List<NPC> getAllNPCs(Context context) {
         return getGameDB(context).npcDAO().getAllNPCs();
     }
