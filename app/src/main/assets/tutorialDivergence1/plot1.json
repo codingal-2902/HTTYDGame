@@ -5,6 +5,11 @@
 			"speaker":"Hiccup",
 			"dialogue":["This could definitely do with a few improvements..."],
 			"unlockAchievement": "Wasting time."
+		},
+		{
+			"imageIDIndex": 0,
+			"speaker":"",
+			"dialogue": ["LOADNEWCHAPTER"]
 		}
 	]
 }

@@ -9,5 +9,6 @@
         <item>@drawable/forge_hard_at_work</item>
         <item>@drawable/mangler</item>
         <item>@drawable/group_shot</item>
+        <item>@drawable/logo</item>
     </array>
 </resources>

@@ -15,35 +15,22 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class AchievementList extends AppCompatActivity {
 
-//    protected SharedPreferences sp;
-    protected ArrayList<Achievement> achievementList;
+    protected ArrayList<Achievement> achievementList = new ArrayList<>();
     protected Intent intent = new Intent();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_achievement_list);
-        System.out.println("onCreate() from AchievementList was called.");
-        achievementList = new ArrayList<>();
-
-        Bundle bundle = getIntent().getExtras();
-
-        assert bundle != null;
-        String[] testDrive = (String[]) bundle.get("aList");
-
-        assert testDrive != null;
-        for (String gsonObj : testDrive) {
-            Gson gson = new Gson();
-            Achievement achievementObj = gson.fromJson(gsonObj, Achievement.class);
-            achievementList.add(achievementObj);
-        }
+        GameRepository repo = new GameRepository();
+        List<Achievement> originalAchievementList = repo.getAchievements(getApplicationContext());
+        achievementList.addAll(originalAchievementList);
 
         ListAdapter adapter = new ListAdapter(this, achievementList);
         ListView listView = findViewById(R.id.mobile_list);
@@ -76,8 +63,6 @@ public class AchievementList extends AppCompatActivity {
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             Achievement achievement = getItem(position);
             assert achievement != null;
-
-            System.out.println(position + " " + achievement.getName());
 
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.activity_listview, parent, false);

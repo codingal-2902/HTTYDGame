@@ -14,6 +14,9 @@ public interface AchievementDAO {
     @Query("UPDATE achievements SET isUnlocked = 1 WHERE achievementName = :aName")
     void setUnlocked(String aName);
 
+    @Query("SELECT * FROM achievements WHERE achievementName = :text")
+    Achievement getAchievementByName(String text);
+
     @Query("SELECT * FROM achievements WHERE isUnlocked = 1")
     List<Achievement> getUnlockedAchievements();
 

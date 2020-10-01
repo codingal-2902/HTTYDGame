@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.ArraySet;
+import android.view.View;
 import android.widget.Button;
 
 import com.google.gson.Gson;
@@ -39,10 +40,17 @@ public class MainActivity extends AppCompatActivity {
         String spName = "prefs";
         sharedPreferences = getSharedPreferences(spName, MODE_PRIVATE);
 
+        Button exitButton = findViewById(R.id.exit);
+        exitButton.setOnClickListener(view -> {
+            finish();
+            System.exit(0);
+        });
+
         BufferedReader reader;
         try {
             InputStream inputStream = getAssets().open("initAchievements.json");
             reader = new BufferedReader(new InputStreamReader(inputStream));
+            GameRepository repo = new GameRepository();
             JSONParser parser = new JSONParser();
             JSONObject fileData = (JSONObject) parser.parse(reader);
             inputStream.close();
@@ -62,8 +70,12 @@ public class MainActivity extends AppCompatActivity {
                 allAchievements.add(newAchievement);
             }
 
+            if (repo.getAchievements(getApplicationContext()).size() == 0) {
+                repo.initAchievements(getApplicationContext(), allAchievements);
+            }
+
             Set<String> achHolder = new ArraySet<>();
-            for (Achievement ach : allAchievements) {
+            for (Achievement ach : repo.getAchievements(getApplicationContext())) {
                 Gson gson = new Gson();
                 String achString = gson.toJson(ach);
                 achHolder.add(achString);
@@ -83,11 +95,15 @@ public class MainActivity extends AppCompatActivity {
         startGame.setOnClickListener(view -> {
             Intent game = new Intent(MainActivity.this, GameActivity.class);
             if (sharedPreferences.contains("pageNo") && sharedPreferences.contains("files")) {
-                game.putExtra("savedPage", sharedPreferences.getInt("pageNo", 0));
+                game.putExtra("pageNo", sharedPreferences.getInt("pageNo", 0));
                 game.putExtra("files", sharedPreferences.getString("files", ""));
+                game.putExtra("dayTime", sharedPreferences.getInt("dayTime", 0));
+                game.putExtra("pointInTime", sharedPreferences.getString("pointInTime", ""));
             } else {
-                game.putExtra("savedPage", 0);
+                game.putExtra("pageNo", 0);
                 game.putExtra("files", "");
+                game.putExtra("dayTime", 0);
+                game.putExtra("pointInTime", "");
             }
             if (sharedPreferences.contains("aList")) {
                 game.putExtra("aList", Objects.requireNonNull(sharedPreferences.getStringSet("aList", null)).toArray(new String[0]));

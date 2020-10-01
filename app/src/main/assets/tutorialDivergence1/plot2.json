@@ -5,6 +5,11 @@
 			"speaker":"Hiccup",
 			"dialogue":["Maybe it might work out this time. Let's get to it."],
 			"unlockAchievement": "This could be interesting..."
+		},
+		{
+			"imageIDIndex": 0,
+			"speaker":"",
+			"dialogue": ["LOADNEWCHAPTER"]
 		}
 	]
 }

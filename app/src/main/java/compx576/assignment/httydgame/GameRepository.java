@@ -1,7 +1,6 @@
 package compx576.assignment.httydgame;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -27,27 +26,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-import static android.content.Context.MODE_PRIVATE;
-
 public class GameRepository {
 
     private static GameDatabase gameDB;
     private static final Object LOCK = new Object();
-    protected SharedPreferences sharedPreferences;
     private Context dbContext;
     protected Bundle extraData;
     private JSONObject tutorialData;
-    private JSONArray storyData;
+    private List<String> tableOfContents = new ArrayList<>();
     private String pointInTime;
-    private String divergedConvo;
-    private int changeDayTime;
-    private int counter;
+    private int changeDayTime = 0;
+    private int counter = 1;
+    private int chapterCount = 0;
 
     public synchronized GameDatabase getGameDB(Context context) {
         if (gameDB == null) {
             dbContext = context;
-            changeDayTime = 0;
-            counter = 1;
             synchronized (LOCK) {
                 if (gameDB == null) {
                     gameDB = Room.databaseBuilder(dbContext,
@@ -62,33 +56,36 @@ public class GameRepository {
     }
 
     private RoomDatabase.Callback dbCallback = new RoomDatabase.Callback() {
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
-            Executors.newSingleThreadScheduledExecutor().execute(new Runnable() {
-                @RequiresApi(api = Build.VERSION_CODES.N)
-                @Override
-                public void run() {
-                    initGame(dbContext, extraData);
-                }
-            });
+            Executors.newSingleThreadScheduledExecutor().execute(() -> initGame(dbContext, extraData));
         }
     };
+
+    void initTOC(Context context) {
+        try {
+            JSONObject toc = loadFile(context.getAssets().open("chapterTOC.json"));
+            JSONArray tocList = (JSONArray) toc.get("chapters");
+            assert tocList != null;
+            for (Object chapterObject : tocList) {
+                String chapter = (String) chapterObject;
+                tableOfContents.add(chapter);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    void initAchievements(Context context, ArrayList<Achievement> allAchievements) {
+        for (Achievement a : allAchievements) {
+            getGameDB(context).achievementDAO().insertAchievement(a);
+        }
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     void initGame(Context context, Bundle data) {
         JSONArray initialChars = null;
-
-        String spName = "prefs";
-        sharedPreferences = context.getSharedPreferences(spName, MODE_PRIVATE);
-
-        String[] testDrive = (String[]) data.get("aList");
-
-        assert testDrive != null;
-        for (String gsonObj : testDrive) {
-            Gson gson = new Gson();
-            Achievement achievementObj = gson.fromJson(gsonObj, Achievement.class);
-            getGameDB(context).achievementDAO().insertAchievement(achievementObj);
-        }
 
         try {
             JSONObject charData = loadFile(context.getAssets().open("initialChars.json"));
@@ -107,7 +104,6 @@ public class GameRepository {
             getGameDB(context).npcDAO().insertCharacter(newCharacter);
         }
 
-        int pageNo = data.getInt("savedPage", 0);
         String loadedFiles = data.getString("files");
         assert loadedFiles != null;
         String[] files = loadedFiles.split(",");
@@ -145,7 +141,7 @@ public class GameRepository {
             e.printStackTrace();
         }
 
-        storyData = (JSONArray) tutorialData.get("scenes");
+        JSONArray storyData = (JSONArray) tutorialData.get("scenes");
         assert storyData != null;
 
         for (Object scene : storyData) {
@@ -153,6 +149,12 @@ public class GameRepository {
             JSONArray chatter = (JSONArray) sceneCopy.get("dialogue");
             assert chatter != null;
             String firstLine = (String) chatter.get(0);
+
+            if (firstLine.equals("LOADNEWCHAPTER")) {
+                loadNewScenes(context, tableOfContents.get(chapterCount));
+                chapterCount += 1;
+                break;
+            }
 
             if (firstLine.contains("convo1")) {
                 JSONArray relThreshold = (JSONArray) sceneCopy.get("relLevels");
@@ -165,8 +167,9 @@ public class GameRepository {
                 for (int i = 0; i < plotNames.length; i++) {
                     plotNames[i] = (String) chatter.get(i);
                 }
-                NPC testChar = getGameDB(context).npcDAO().findNPCByName("Village");
-                divergedConvo = getDivergentConversation(testChar, threshold, plotNames);
+                String affectedCharName = (String) sceneCopy.get("affectedCharName");
+                NPC affectedChar = getGameDB(context).npcDAO().findNPCByName(affectedCharName);
+                String divergedConvo = getDivergentConversation(affectedChar, threshold, plotNames);
                 loadNewScenes(context, divergedConvo);
                 continue;
             }
@@ -260,8 +263,20 @@ public class GameRepository {
 
     public int getDayTime() { return this.changeDayTime; }
 
-    public String getConvoName() {
-        return this.divergedConvo;
+    public int getChapterNumber() {
+        return this.chapterCount;
+    }
+
+    public void resetDayTime(int dayTime) {
+        this.changeDayTime = dayTime;
+    }
+
+    public void resetPointInTime(String pointInTime) {
+        this.pointInTime = pointInTime;
+    }
+
+    public void resetChapterCount(int chapterNo) {
+        this.chapterCount = chapterNo;
     }
 
     public Dialogue getPage(Context context, int position) {
@@ -276,12 +291,20 @@ public class GameRepository {
         return getGameDB(context).npcDAO().findNPCByName(name);
     }
 
-    public void updateRelationship(Context context, String charName, int newValue) {
+    public void updateRelationship(Context context, String charName, float newValue) {
         getGameDB(context).npcDAO().updateRelationship(charName, newValue);
     }
 
     public List<NPC> getAllNPCs(Context context) {
         return getGameDB(context).npcDAO().getAllNPCs();
+    }
+
+    public Achievement getAchievement(Context context, String achName) {
+        return getGameDB(context).achievementDAO().getAchievementByName(achName);
+    }
+
+    public void unlockAchievement(Context context, String achName) {
+        getGameDB(context).achievementDAO().setUnlocked(achName);
     }
 
     public List<Achievement> getAchievements(Context context) {

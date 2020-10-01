@@ -8,6 +8,7 @@
         "imageIDIndex": 0,
         "speaker": "",
         "dialogue":["convo1/plot1.json", "convo1/plot3.json", "convo1/plot2.json"],
+        "affectedCharName": "Village",
         "relLevels": [-10, 0, 30]
     },
     {

@@ -15,7 +15,7 @@ public interface npcDAO {
     NPC findNPCByName(String name);
 
     @Query("UPDATE characters SET relLevel = :updatedValue WHERE name = :characterName")
-    void updateRelationship(String characterName, int updatedValue);
+    void updateRelationship(String characterName, float updatedValue);
 
     @Query("SELECT * FROM characters")
     List<NPC> getAllNPCs();
