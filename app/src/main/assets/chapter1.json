@@ -16,5 +16,10 @@
         "speaker":"Narrator",
         "dialogue":["Days roll by, with the last big raid of the year imminent.",
                     "Time to put the Mangler to work."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"",
+        "dialogue": "LOADNEWCHAPTER"
     }
 ]}
