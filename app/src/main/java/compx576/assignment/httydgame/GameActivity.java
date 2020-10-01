@@ -260,11 +260,6 @@ public class GameActivity extends AppCompatActivity {
                     break;
                 }
             }
-            try {
-                gameRepo.loadNewScenes(getApplicationContext(), "chapter1.json");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
 
             LayoutInflater inflater = getLayoutInflater();
 

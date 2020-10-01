@@ -263,20 +263,12 @@ public class GameRepository {
 
     public int getDayTime() { return this.changeDayTime; }
 
-    public int getChapterNumber() {
-        return this.chapterCount;
-    }
-
     public void resetDayTime(int dayTime) {
         this.changeDayTime = dayTime;
     }
 
     public void resetPointInTime(String pointInTime) {
         this.pointInTime = pointInTime;
-    }
-
-    public void resetChapterCount(int chapterNo) {
-        this.chapterCount = chapterNo;
     }
 
     public Dialogue getPage(Context context, int position) {
