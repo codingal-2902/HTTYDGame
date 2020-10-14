@@ -14,12 +14,154 @@
     {
         "imageIDIndex": 0,
         "speaker":"Narrator",
-        "dialogue":["Days roll by, with the last big raid of the year imminent.",
+        "dialogue":["Days roll by, with the last big raid of the year imminent.<br/>",
                     "Time to put the Mangler to work."]
     },
     {
         "imageIDIndex": 0,
-        "speaker":"",
-        "dialogue": "LOADNEWCHAPTER"
+        "speaker":"ambient",
+        "dialogue":["<i>Things proceed largely according to canon from where we left off to now, hence the sudden jump.<br/>",
+            "This scene is another fork in the storyline.</i>"]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Hiccup",
+        "dialogue":["..."],
+        "pointInTime": "Day 1 - Night"
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Narrator",
+        "dialogue":["<i>Still somewhat disoriented from his encounter with the unholy offspring of lightning and death, Hiccup quietly returns home, wanting nothing but rest.<br/>",
+            "The sight of his father by the hearth as he opens the door is a dismaying one.<br/>",
+            "He attempts to sneak upstairs, but...</i>"]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Stoick",
+        "dialogue":["Hiccup."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Hiccup",
+        "dialogue":["Dad?! ... Uh, I have to talk to you, Dad."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Stoick",
+        "dialogue":["I need to speak with you too, son."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Stoick/<i>Hiccup</i>",
+        "dialogue":["It's time you learned how to fight dragons.<br/>",
+            "<i>I've decided I don't want to fight dragons.</i><br/>",
+            "...what?"]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Stoick",
+        "dialogue":["You go first."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Hiccup",
+        "dialogue":["No, no, you go first."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Stoick",
+        "dialogue":["Alright.<br/>",
+            "You get your wish.<br/>Dragon Training. You start in the morning."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Hiccup",
+        "dialogue":["Oh man, I should've gone first. Uh, 'cause, I was thinking, you know, we have a surplus of dragon-fighting Vikings, but do we have enough... <i>bread-making</i> Vikings or small-home-repair-"]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Narrator",
+        "dialogue":["Stoick drops an axe into his son's arms, and Hiccup stumbles at its weight."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Stoick",
+        "dialogue":["You'll need this."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Hiccup",
+        "dialogue":["I-I don't want to fight dragons."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Stoick",
+        "dialogue":["Oh, come on, yes you do."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Hiccup",
+        "dialogue":["Rephrase. Dad, I <i>can't. Kill. Dragons.</i>"]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Stoick",
+        "dialogue":["But you <i>will</i> kill dragons."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Hiccup",
+        "dialogue":["No, I'm really very extra-sure that I <i>won't</i>."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Stoick",
+        "dialogue":["It's time, Hiccup."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Hiccup",
+        "dialogue":["Can you not hear me?"]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Stoick",
+        "dialogue":["This, is <i>serious</i>, son.<br/>",
+            "When you carry this axe, you carry all of us with you.<br/>",
+            "Which means you <i>walk</i> like us, you <i>talk</i> like us, you <i>think</i> like us.<br/>",
+            "No more of ... <i>this.</i>"]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Hiccup",
+        "dialogue":["You just gestured to all of me."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Stoick",
+        "dialogue":["Deal?"]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Hiccup",
+        "dialogue":["This conversation is feeling very one-sided - "]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Stoick",
+        "dialogue":["<i>Deal?</i>"]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Hiccup",
+        "dialogue":["..."],
+        "choice": {
+            "ChoiceOne": "No.",
+            "ChoiceTwo": "Deal.",
+            "charNames": ["Stoick"],
+            "relChange": [-20, 10],
+            "fileToOpen":  ["tutorialDivergence2/plot1.json", "chapter1cont.json"]
+        }
     }
 ]}

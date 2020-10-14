@@ -13,7 +13,6 @@ public class TypeWriter extends TextView {
     private int mIndex;
     private long mDelay = 150; //Default 150ms delay
 
-
     public TypeWriter(Context context) {
         super(context);
     }
@@ -49,5 +48,9 @@ public class TypeWriter extends TextView {
     public void removeDelay() {
         mHandler.removeCallbacks(characterAdder);
         setText(mText);
+    }
+
+    public boolean checkIfFinished() {
+        return mIndex >= mText.length();
     }
 }

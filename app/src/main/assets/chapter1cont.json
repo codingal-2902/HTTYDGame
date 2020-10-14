@@ -1,0 +1,13 @@
+{"scenes": [
+    {
+        "imageIDIndex": 0,
+        "speaker":"Stoick",
+        "dialogue":["Good.",
+                    "Train hard, I'll be back... probably."]
+    },
+    {
+        "imageIDIndex": 0,
+        "speaker":"Hiccup",
+        "dialogue":["And I'll be here... maybe. "]
+    }
+]}

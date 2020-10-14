@@ -1,0 +1,14 @@
+{"scenes":
+	[
+		{
+			"imageIDIndex": 0,
+			"speaker":"Narrator",
+			"dialogue":["Hiccup sets the axe down, and utters a single word before walking out the front door."]
+		},
+		{
+			"imageIDIndex": 0,
+			"speaker":"Hiccup",
+			"dialogue":["<b><i>No.</i></b>"]
+		}
+	]
+}

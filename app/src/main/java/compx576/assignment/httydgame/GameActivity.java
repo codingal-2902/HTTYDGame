@@ -41,12 +41,10 @@ public class GameActivity extends AppCompatActivity {
     private List<Dialogue> pages;
     private List<NPC> characters;
     private List<Achievement> achievements;
-    private List<String> tocCopy;
     private Dialogue currentPage;
     private int pageNo;
     private float relMultiplier;
     private String loadedFiles;
-    private String nextChapter;
     protected SharedPreferences sharedPreferences;
     protected Intent intent = new Intent();
     protected Gson gson = new Gson();
@@ -59,15 +57,17 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         System.out.println("onCreate was called.");
         setContentView(R.layout.activity_main);
-        gameRepo = new GameRepository();
 
         Bundle bundle = getIntent().getExtras();
         assert bundle != null;
         String spName = "prefs";
         sharedPreferences = getApplicationContext().getSharedPreferences(spName, MODE_PRIVATE);
 
+        // Initialise database, and create a table of contents
+        gameRepo = new GameRepository();
         gameRepo.initTOC(getApplicationContext());
 
+        // If the database is empty, populate it, otherwise re-instantiate some variables
         if (gameRepo.getAllScenes(getApplicationContext()).size() == 0) {
             gameRepo.initGame(getApplicationContext(), bundle);
         } else {
@@ -75,11 +75,11 @@ public class GameActivity extends AppCompatActivity {
             gameRepo.resetPointInTime(sharedPreferences.getString("pointInTime", ""));
         }
 
+        // 
         pages = gameRepo.getAllScenes(getApplicationContext());
         characters = gameRepo.getAllNPCs(getApplicationContext());
         achievements = gameRepo.getAchievements(getApplicationContext());
         loadedFiles = "";
-        nextChapter = "";
         relMultiplier = 1;
 
         proceedButton = findViewById(R.id.proceed);
@@ -89,6 +89,7 @@ public class GameActivity extends AppCompatActivity {
         background = findViewById(R.id.myImageView);
         speaker = findViewById(R.id.whoIsTalking);
         chatterBox = findViewById(R.id.dialogueBox);
+
         imageResources = getResources().obtainTypedArray(R.array.list);
 
         proceedButton.setVisibility(View.VISIBLE);
@@ -108,6 +109,7 @@ public class GameActivity extends AppCompatActivity {
         dialog.setText("");
         dialog.setCharacterDelay(50);
         dialog.animateText(Html.fromHtml(currentPage.getText()));
+        chatterBox.setOnClickListener(view -> dialog.removeDelay());
         dialog.setOnClickListener(view -> dialog.removeDelay());
 
         proceedButton.setOnClickListener(view -> {
