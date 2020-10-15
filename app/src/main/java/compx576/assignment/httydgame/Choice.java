@@ -1,7 +1,7 @@
 package compx576.assignment.httydgame;
 import java.util.List;
 
-public class Choice{
+public class Choice {
     private String choice1;
     private String choice2;
     private List<NPC> affectedChar;
@@ -9,6 +9,7 @@ public class Choice{
     private String[] nextFile;
     private boolean alreadySeen;
 
+    // Constructor for the Choice class
     public Choice(boolean alreadySeen, String choice1, String choice2, List<NPC> affectedChars, long[] levelChange, String[] nextFile) {
         this.choice1 = choice1;
         this.choice2 = choice2;
@@ -18,6 +19,7 @@ public class Choice{
         this.alreadySeen = alreadySeen;
     }
 
+    // Getters and setters for the class attributes
     public void setChoice1(String choice1) {
         this.choice1 = choice1;
     }

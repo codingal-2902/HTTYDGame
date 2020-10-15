@@ -27,8 +27,10 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
+// Main activity
 public class GameActivity extends AppCompatActivity {
 
+    // Global variables
     private GameRepository gameRepo;
     private ImageView background;
     private Button proceedButton;
@@ -75,7 +77,7 @@ public class GameActivity extends AppCompatActivity {
             gameRepo.resetPointInTime(sharedPreferences.getString("pointInTime", ""));
         }
 
-        // 
+        // Initialise global variables
         pages = gameRepo.getAllScenes(getApplicationContext());
         characters = gameRepo.getAllNPCs(getApplicationContext());
         achievements = gameRepo.getAchievements(getApplicationContext());
@@ -96,14 +98,20 @@ public class GameActivity extends AppCompatActivity {
         choice1Button.setVisibility(View.INVISIBLE);
         choice2Button.setVisibility(View.INVISIBLE);
 
+        // Create a back button for the user to navigate back to the home screen
         Objects.requireNonNull(getSupportActionBar()).setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // Retrieve the page number variable from shared preferences
+        // If it is null, set it to 0
+        // Set the current page pf the story
         pageNo = sharedPreferences.getInt("pageNo", 0);
         currentPage = pages.get(pageNo);
 
-        convertStringToChoice(currentPage.getWhatIf());
+        checkChoiceVariable(currentPage.getWhatIf());
 
+        // Set the initial background image, the name of the initial person speaking, and the initial dialogue being spoken
+        // Also allow the typewriter effect to be skipped
         background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
         speaker.setText(Html.fromHtml(currentPage.getCharName()));
         dialog.setText("");
@@ -112,12 +120,16 @@ public class GameActivity extends AppCompatActivity {
         chatterBox.setOnClickListener(view -> dialog.removeDelay());
         dialog.setOnClickListener(view -> dialog.removeDelay());
 
+        // Set up the functionality of the proceed button
         proceedButton.setOnClickListener(view -> {
+            // Increment the page number
             pageNo++;
+            // If the page number equals one that contains a new day/time alert
             if (pageNo == gameRepo.getDayTime()-1) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
                 TextView title = new TextView(this);
 
+                // Set the alert dialog's values
                 title.setText(gameRepo.getPointInTime());
                 title.setBackgroundColor(Color.DKGRAY);
                 title.setPadding(10, 10, 10, 10);
@@ -131,9 +143,12 @@ public class GameActivity extends AppCompatActivity {
                 final AlertDialog closedialog = builder.create();
 
                 closedialog.show();
+
+                // Hide the dialogue box
                 chatterBox.setVisibility(View.INVISIBLE);
                 background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
 
+                // Automatically dismiss the alert dialog after five seconds
                 final Timer timer2 = new Timer();
                 timer2.schedule(new TimerTask() {
                     public void run() {
@@ -151,18 +166,24 @@ public class GameActivity extends AppCompatActivity {
                         }
                     }
                 }, 3000);
+            // Otherwise, get the next page as per normal
             } else {
                 grabNextSegment(pageNo);
             }
+            // If the current page does not contain a choice, keep the choice buttons hidden
             if (currentPage.getWhatIf() == null) {
                 invertChoiceAndProceed(true);
             } else {
-                convertStringToChoice(currentPage.getWhatIf());
+                checkChoiceVariable(currentPage.getWhatIf());
             }
         });
 
+        // These buttons are hidden most of the time, but when they are visible...
         choice1Button.setOnClickListener(view -> {
             try {
+                // Convert the choice object stored in the current page to its intended class
+                // It's stored as a string initially, so it doesn't require its own table in the database
+                // Set the alreadySeen boolean to true, increment the page number, and get the next page
                 Choice c = gson.fromJson(currentPage.getWhatIf(), Choice.class);
                 makeChoice(c, 0);
                 c.setAlreadySeen(true);
@@ -185,6 +206,8 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
+    // Code for the back button that navigates from this screen to the home screen
+    // Start the MainActivity class, and exit this one
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -197,6 +220,8 @@ public class GameActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Invert the visibility of the proceed and choice buttons
+    // If one is visible, hide the other(s)
     protected void invertChoiceAndProceed(boolean condition) {
         if (condition) {
             proceedButton.setVisibility(View.VISIBLE);
@@ -209,11 +234,16 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    // Move to the next page
     @RequiresApi(api = Build.VERSION_CODES.N)
     protected void grabNextSegment(int position) {
+        // Reset the current page variable and the typewriter delay
         currentPage = gameRepo.getPage(getApplicationContext(), position+1);
         dialog.setCharacterDelay(50);
-        convertStringToChoice(currentPage.getWhatIf());
+        // Check if the new current page has a choice attached to it
+        checkChoiceVariable(currentPage.getWhatIf());
+        // Load the achievement object attached to the current page
+        // If it is not null, and it hasn't already been unlocked, display it on the screen
         Achievement a = gson.fromJson(currentPage.hasAchievement(), Achievement.class);
         if (a != null) {
             a = gameRepo.getAchievement(getApplicationContext(), a.getName());
@@ -221,11 +251,13 @@ public class GameActivity extends AppCompatActivity {
                 displayAchievement(currentPage);
             }
         }
+        // Get and set the background image, the name of the person speaking, and their dialogue, from the current page
         background.setImageDrawable(imageResources.getDrawable(currentPage.getBgImage()));
         speaker.setText(Html.fromHtml(currentPage.getCharName()));
         dialog.animateText(Html.fromHtml(currentPage.getText()));
     }
 
+    //
     @RequiresApi(api = Build.VERSION_CODES.N)
     protected void makeChoice(Choice c, int whichChoice) {
         List<NPC> chars = c.getAffectedChar();
@@ -249,20 +281,26 @@ public class GameActivity extends AppCompatActivity {
         pages = gameRepo.getAllScenes(getApplicationContext());
     }
 
+    // Displays an achievement
     @RequiresApi(api = Build.VERSION_CODES.N)
     protected void displayAchievement(Dialogue page) {
+        // Like the choice object, achievements are stored as strings within a Dialogue object
+        // While they do have their own table, this method makes retrieving an achievement from the database easier
         String achString = page.hasAchievement();
         Achievement a = gson.fromJson(achString, Achievement.class);
         if (a != null) {
             a = gameRepo.getAchievement(getApplicationContext(), a.getName());
+            // Set the relationship multiplier
             setRelMultiplier(a.getMultiplier());
             for (Achievement ach : achievements) {
+                // Unlock the achievement in the database
                 if (a.getName().equals(ach.getName())) {
                     gameRepo.unlockAchievement(getApplicationContext(), a.getName());
                     break;
                 }
             }
 
+            // Toast setup for the achievement display notification
             LayoutInflater inflater = getLayoutInflater();
 
             View toastLayout = inflater.inflate(R.layout.achievement_toast,
@@ -282,12 +320,16 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    // Set the multiplier for the relationship values
+    // This affects how fast, or how slowly, the player increases or decreases relationships with other character overall.
     protected void setRelMultiplier(String newMultiplier) {
         float floatVal = Float.parseFloat(newMultiplier);
         relMultiplier += floatVal;
     }
 
-    protected void convertStringToChoice(String chString) {
+    // Check if a given page has a choice variable
+    // If it does, only set the choice buttons to visible if it hasn't been seen in-story
+    protected void checkChoiceVariable(String chString) {
         Choice c = gson.fromJson(chString, Choice.class);
         if (c == null) {
             invertChoiceAndProceed(true);
@@ -300,6 +342,8 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    // This is called when the application is paused
+    // It stores a number of variables into shared preferences, so they can be retrieved when the game is resumed
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onPause() {
@@ -312,6 +356,5 @@ public class GameActivity extends AppCompatActivity {
         editor.putInt("dayTime", gameRepo.getDayTime());
         editor.putString("pointInTime", gameRepo.getPointInTime());
         editor.apply();
-        System.out.println("onPause was called.");
     }
 }

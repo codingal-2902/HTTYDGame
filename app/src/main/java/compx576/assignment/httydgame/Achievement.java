@@ -4,9 +4,11 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+// Define the table name as 'achievements'
 @Entity(tableName = "achievements")
 public class Achievement {
 
+    // Specify some columns in the table
     @PrimaryKey
     private int id;
     @ColumnInfo(name = "achievementName")
@@ -16,6 +18,7 @@ public class Achievement {
     @ColumnInfo(name = "isUnlocked")
     private boolean isUnlocked;
 
+    // Class constructor
     public Achievement(int id, String name, String description, String multiplier, boolean isUnlocked) {
         this.id = id;
         this.name = name;
@@ -24,6 +27,7 @@ public class Achievement {
         this.isUnlocked = isUnlocked;
     }
 
+    // Getters and setters for class attributes
     public void setId(int id) {
         this.id = id;
     }

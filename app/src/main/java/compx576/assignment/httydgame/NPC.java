@@ -9,8 +9,10 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+// Define the table name as 'characters'
 @Entity(tableName = "characters")
 public class NPC {
+    // Specify some columns
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "pk")
     private int pk;
@@ -19,11 +21,13 @@ public class NPC {
     @ColumnInfo(name = "relLevel")
     private float relationship;
 
+    // Constructor for the NPC class
     public NPC(String charName, float relationship) {
         this.charName = charName;
         this.relationship = relationship;
     }
 
+    // Getters and setters for the class attributes
     public int getPk() {
         return this.pk;
     }

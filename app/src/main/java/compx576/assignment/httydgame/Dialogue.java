@@ -10,8 +10,10 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+// Define the table name as 'dialogue'
 @Entity(tableName = "dialogue")
 public class Dialogue {
+    // Specify some columns
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "pk")
     private int position;
@@ -25,6 +27,7 @@ public class Dialogue {
     private String whatIf;
     private String hasAchievement;
 
+    // Constructor for the Dialogue class
     public Dialogue(String text, String charName, int bgImage, boolean isCurrentPage, String whatIf, String hasAchievement) {
         this.text = text;
         this.charName = charName;
@@ -34,6 +37,7 @@ public class Dialogue {
         this.hasAchievement = hasAchievement;
     }
 
+    // Getters and setters for the class attributes
     public void setBgImage(int bgImage) {
         this.bgImage = bgImage;
     }

@@ -26,8 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
+// Database functionality and calls
 public class GameRepository {
 
+    // Global variables
     private static GameDatabase gameDB;
     private static final Object LOCK = new Object();
     private Context dbContext;
@@ -39,6 +41,7 @@ public class GameRepository {
     private int counter = 1;
     private int chapterCount = 0;
 
+    // Get/setup the database object
     public synchronized GameDatabase getGameDB(Context context) {
         if (gameDB == null) {
             dbContext = context;
@@ -55,6 +58,7 @@ public class GameRepository {
         return gameDB;
     }
 
+    // Call the initGame() function on creation.
     private RoomDatabase.Callback dbCallback = new RoomDatabase.Callback() {
         @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
@@ -63,6 +67,7 @@ public class GameRepository {
         }
     };
 
+    // Initialise the table of contents object
     void initTOC(Context context) {
         try {
             JSONObject toc = loadFile(context.getAssets().open("chapterTOC.json"));
@@ -77,12 +82,14 @@ public class GameRepository {
         }
     }
 
+    // Add achievements to the achievements table
     void initAchievements(Context context, ArrayList<Achievement> allAchievements) {
         for (Achievement a : allAchievements) {
             getGameDB(context).achievementDAO().insertAchievement(a);
         }
     }
 
+    // Add characters and scenes/pages to their respective tables
     @RequiresApi(api = Build.VERSION_CODES.N)
     void initGame(Context context, Bundle data) {
         JSONArray initialChars = null;
@@ -104,6 +111,7 @@ public class GameRepository {
             getGameDB(context).npcDAO().insertCharacter(newCharacter);
         }
 
+        // If there are extra file names in shared preferences, load them as well
         String loadedFiles = data.getString("files");
         assert loadedFiles != null;
         String[] files = loadedFiles.split(",");
@@ -120,6 +128,7 @@ public class GameRepository {
         loadNewScenes(context, "tutorial.json");
     }
 
+    // General function for loading JSON files
     protected JSONObject loadFile(InputStream inputStream) throws IOException, ParseException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         JSONParser parser = new JSONParser();
@@ -129,6 +138,8 @@ public class GameRepository {
         return fileData;
     }
 
+    // BIG function
+    // Load new JSON files into Dialogue objects and store them in the database
     @RequiresApi(api = Build.VERSION_CODES.N)
     void loadNewScenes(Context context, String fileName) {
         JSONParser parser = new JSONParser();
@@ -144,18 +155,23 @@ public class GameRepository {
         JSONArray storyData = (JSONArray) tutorialData.get("scenes");
         assert storyData != null;
 
+        // For every individual scene in a file
+        // Get the dialogue object first, and check if it equals 'LOADNEWCHAPTER' or contains 'convo1'
+        // If either one of these, or both, return true, recursively load a new file
         for (Object scene : storyData) {
             JSONObject sceneCopy = (JSONObject) scene;
             JSONArray chatter = (JSONArray) sceneCopy.get("dialogue");
             assert chatter != null;
             String firstLine = (String) chatter.get(0);
 
+            // Break the for loop if a new chapter file is loaded
             if (firstLine.equals("LOADNEWCHAPTER")) {
                 loadNewScenes(context, tableOfContents.get(chapterCount));
                 chapterCount += 1;
                 break;
             }
 
+            // Skip to the next iteration after this one if this is true
             if (firstLine.contains("convo1")) {
                 JSONArray relThreshold = (JSONArray) sceneCopy.get("relLevels");
                 assert relThreshold != null;
@@ -167,6 +183,7 @@ public class GameRepository {
                 for (int i = 0; i < plotNames.length; i++) {
                     plotNames[i] = (String) chatter.get(i);
                 }
+                // Get the names of characters that are affected by a choice
                 String affectedCharName = (String) sceneCopy.get("affectedCharName");
                 NPC affectedChar = getGameDB(context).npcDAO().findNPCByName(affectedCharName);
                 String divergedConvo = getDivergentConversation(affectedChar, threshold, plotNames);
@@ -174,6 +191,7 @@ public class GameRepository {
                 continue;
             }
 
+            // Use a string-builder to concatenate dialogue strings
             StringBuilder sb = new StringBuilder();
             for (Object line : chatter) {
                 String lineObj = (String) line;
@@ -189,6 +207,7 @@ public class GameRepository {
                 changeDayTime = counter;
             }
 
+            // Load choice objects into a string
             JSONObject choiceDetails = (JSONObject) sceneCopy.get("choice");
             Choice c = null;
             if (choiceDetails != null) {
@@ -216,6 +235,7 @@ public class GameRepository {
                 c = new Choice(false, choice1, choice2, affectedChars, relChanges, additionalScenes);
             }
 
+            // Do the same with achievement objects
             String achievementDetails = (String) sceneCopy.get("unlockAchievement");
             Achievement a = null;
             List<Achievement> achievements = getGameDB(context).achievementDAO().getAllAchievements();
@@ -227,16 +247,19 @@ public class GameRepository {
             String choiceString = gson.toJson(c);
             String achString = gson.toJson(a);
 
+            // Create a new page with all of these details, and store it in the database, and increment the counter
             Dialogue newScene = new Dialogue(sb.toString(), name, (int) bgImageID, false, choiceString, achString);
             getGameDB(context).dialogueDAO().insertNewPage(newScene);
             counter++;
         }
     }
 
+    // If a scene changes based on the main character's relationship with a given character, run this function
     protected String getDivergentConversation(NPC character, long[] threshold, String[] plots) {
         int length = threshold.length;
         String plotName = "";
 
+        // If there is
         if (length == 1) {
             if (character.getRelationship() <= threshold[0]) {
                 plotName = plots[0];
@@ -257,6 +280,7 @@ public class GameRepository {
         return plotName;
     }
 
+    // Various getters and (re-)setters
     public String getPointInTime() {
         return this.pointInTime;
     }
@@ -283,6 +307,7 @@ public class GameRepository {
         return getGameDB(context).npcDAO().findNPCByName(name);
     }
 
+    // Update relationship value
     public void updateRelationship(Context context, String charName, float newValue) {
         getGameDB(context).npcDAO().updateRelationship(charName, newValue);
     }
@@ -295,6 +320,7 @@ public class GameRepository {
         return getGameDB(context).achievementDAO().getAchievementByName(achName);
     }
 
+    // Set an achievement as unlocked
     public void unlockAchievement(Context context, String achName) {
         getGameDB(context).achievementDAO().setUnlocked(achName);
     }

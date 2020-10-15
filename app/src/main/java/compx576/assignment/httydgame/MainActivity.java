@@ -28,6 +28,7 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Global shared preferences variable
     protected SharedPreferences sharedPreferences;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -35,11 +36,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
-        System.out.println("onCreate from MainActivity was called.");
 
         String spName = "prefs";
         sharedPreferences = getSharedPreferences(spName, MODE_PRIVATE);
 
+        // Exit the game
         Button exitButton = findViewById(R.id.exit);
         exitButton.setOnClickListener(view -> {
             finish();
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
         BufferedReader reader;
         try {
+            // Open JSON file with achievements data, and process it
             InputStream inputStream = getAssets().open("initAchievements.json");
             reader = new BufferedReader(new InputStreamReader(inputStream));
             GameRepository repo = new GameRepository();
@@ -70,30 +72,21 @@ public class MainActivity extends AppCompatActivity {
                 allAchievements.add(newAchievement);
             }
 
+            // If the table is empty, populate it
             if (repo.getAchievements(getApplicationContext()).size() == 0) {
                 repo.initAchievements(getApplicationContext(), allAchievements);
-            }
-
-            Set<String> achHolder = new ArraySet<>();
-            for (Achievement ach : repo.getAchievements(getApplicationContext())) {
-                Gson gson = new Gson();
-                String achString = gson.toJson(ach);
-                achHolder.add(achString);
-            }
-
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            if (!sharedPreferences.contains("aList")) {
-                editor.putStringSet("aList", achHolder);
-                editor.apply();
             }
 
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
 
+        // Functionality for "Load Game" button
         Button startGame = findViewById(R.id.start_game);
         startGame.setOnClickListener(view -> {
             Intent game = new Intent(MainActivity.this, GameActivity.class);
+            // If shared preferences contains these keys, send them to the game activity
+            // Otherwise, send empty or zero values
             if (sharedPreferences.contains("pageNo") && sharedPreferences.contains("files")) {
                 game.putExtra("pageNo", sharedPreferences.getInt("pageNo", 0));
                 game.putExtra("files", sharedPreferences.getString("files", ""));
@@ -105,16 +98,13 @@ public class MainActivity extends AppCompatActivity {
                 game.putExtra("dayTime", 0);
                 game.putExtra("pointInTime", "");
             }
-            if (sharedPreferences.contains("aList")) {
-                game.putExtra("aList", Objects.requireNonNull(sharedPreferences.getStringSet("aList", null)).toArray(new String[0]));
-            }
             startActivity(game);
         });
 
+        // Functionality for "View Achievements" button
         Button achievementList = findViewById(R.id.viewAchievements);
         achievementList.setOnClickListener(view -> {
             Intent achievements = new Intent(MainActivity.this, AchievementList.class);
-            achievements.putExtra("aList", Objects.requireNonNull(sharedPreferences.getStringSet("aList", null)).toArray(new String[0]));
             startActivity(achievements);
         });
     }
