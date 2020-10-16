@@ -35,7 +35,7 @@ public class GameRepository {
     private Context dbContext;
     protected Bundle extraData;
     private JSONObject tutorialData;
-    private List<String> tableOfContents = new ArrayList<>();
+    private final List<String> tableOfContents = new ArrayList<>();
     private String pointInTime;
     private int changeDayTime = 0;
     private int counter = 1;
@@ -59,7 +59,7 @@ public class GameRepository {
     }
 
     // Call the initGame() function on creation.
-    private RoomDatabase.Callback dbCallback = new RoomDatabase.Callback() {
+    private final RoomDatabase.Callback dbCallback = new RoomDatabase.Callback() {
         @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {

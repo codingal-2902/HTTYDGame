@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">HTTYD game</string>
-    <string name="startButton">Load game</string>
+    <string name="startButton">Start new game</string>
+    <string name="resumeButton">Resume game</string>
     <string name="loadAchievements">View achievements</string>
     <string name="exitButton">Exit</string>
     <string name="imageDesc">Image of the Isle of Berk from HTTYD</string>
