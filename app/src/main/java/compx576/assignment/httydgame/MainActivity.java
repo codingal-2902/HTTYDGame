@@ -47,6 +47,12 @@ public class MainActivity extends AppCompatActivity {
             System.exit(0);
         });
 
+        Button loadSaveButton = findViewById(R.id.resume_game);
+        loadSaveButton.setOnClickListener(view -> {
+            Intent savePage = new Intent(MainActivity.this, LoadSaveGame.class);
+            startActivity(savePage);
+        });
+
         BufferedReader reader;
         try {
             // Open JSON file with achievements data, and process it

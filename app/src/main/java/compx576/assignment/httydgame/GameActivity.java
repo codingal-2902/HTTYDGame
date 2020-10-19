@@ -3,7 +3,9 @@ package compx576.assignment.httydgame;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -11,8 +13,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.content.res.TypedArray;
 import android.text.Html;
+import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -36,6 +41,7 @@ public class GameActivity extends AppCompatActivity {
     private Button proceedButton;
     private Button choice1Button;
     private Button choice2Button;
+    private Button menuButton;
     private TypeWriter dialog;
     private TextView speaker;
     private View chatterBox;
@@ -87,10 +93,12 @@ public class GameActivity extends AppCompatActivity {
         proceedButton = findViewById(R.id.proceed);
         choice1Button = findViewById(R.id.choice1);
         choice2Button = findViewById(R.id.choice2);
+        menuButton = findViewById(R.id.menuButton);
         dialog = findViewById(R.id.chatter);
         background = findViewById(R.id.myImageView);
         speaker = findViewById(R.id.whoIsTalking);
         chatterBox = findViewById(R.id.dialogueBox);
+        View textBox = findViewById(R.id.dialogue);
 
         imageResources = getResources().obtainTypedArray(R.array.list);
 
@@ -99,8 +107,8 @@ public class GameActivity extends AppCompatActivity {
         choice2Button.setVisibility(View.INVISIBLE);
 
         // Create a back button for the user to navigate back to the home screen
-        Objects.requireNonNull(getSupportActionBar()).setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        Objects.requireNonNull(getSupportActionBar()).setDisplayShowHomeEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Retrieve the page number variable from shared preferences
         // If it is null, set it to 0
@@ -117,8 +125,11 @@ public class GameActivity extends AppCompatActivity {
         dialog.setText("");
         dialog.setCharacterDelay(50);
         dialog.animateText(Html.fromHtml(currentPage.getText()));
-        chatterBox.setOnClickListener(view -> dialog.removeDelay());
-        dialog.setOnClickListener(view -> dialog.removeDelay());
+        background.setOnClickListener(view -> dialog.removeDelay());
+        textBox.setOnClickListener(view -> dialog.removeDelay());
+
+        registerForContextMenu(menuButton);
+        menuButton.setOnClickListener(view -> menuButton.showContextMenu());
 
         // Set up the functionality of the proceed button
         proceedButton.setOnClickListener(view -> {
@@ -206,18 +217,26 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-    // Code for the back button that navigates from this screen to the home screen
-    // Start the MainActivity class, and exit this one
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if(id == android.R.id.home){
-            intent.setClass(GameActivity.this, MainActivity.class);
-            startActivity(intent);
-            GameActivity.this.finish();
-            return true;
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.setHeaderTitle("Choose your option");
+        getMenuInflater().inflate(R.menu.menu, menu);
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.option_1:
+                Toast.makeText(this, "Option 1 selected", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.option_2:
+                Toast.makeText(this, "Option 2 selected", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return super.onContextItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     // Invert the visibility of the proceed and choice buttons

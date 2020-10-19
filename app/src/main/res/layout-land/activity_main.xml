@@ -12,6 +12,17 @@
         android:layout_height="match_parent"
         android:contentDescription="@string/imageDesc"
         android:scaleType="centerCrop" />
+    <Button
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:id="@+id/menuButton"
+        android:background="@color/colorAccent"
+        android:drawableTop="@drawable/baseline_menu_white_24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="MissingConstraints"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"/>
     <RelativeLayout
         android:id="@+id/dialogueBox"
         android:layout_height="200dp"
@@ -77,12 +88,15 @@
         <Button
             android:id="@+id/proceed"
             android:layout_centerVertical="true"
-            android:layout_width="40dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="0dp"
-            android:layout_marginRight="0dp"
+            android:background="@android:color/transparent"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="5dp"
+            android:layout_marginRight="5dp"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:text="@string/forward" />
+            android:text="@string/forward"
+            android:textSize="25pt"
+            android:textColor="@android:color/holo_green_light"/>
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

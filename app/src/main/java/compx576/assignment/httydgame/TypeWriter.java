@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.widget.Button;
 import android.widget.TextView;
 
 // Class that creates a typewriter effect for a TextView

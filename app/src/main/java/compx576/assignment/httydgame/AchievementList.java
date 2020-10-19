@@ -42,8 +42,6 @@ public class AchievementList extends AppCompatActivity {
         listView.setAdapter(adapter);
 
         // Create a back button, so the user can go back to the main screen
-        Objects.requireNonNull(getSupportActionBar()).setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     // Code for going back to the home screen from this page
