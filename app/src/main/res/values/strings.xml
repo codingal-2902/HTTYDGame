@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">HTTYD game</string>
     <string name="placeholder">Placeholder</string>
+    <string name="saveGame">Save…</string>
+    <string name="returnToMain">Return to main menu</string>
+    <string name="cancel">Cancel</string>
     <string name="startButton">Start new game</string>
     <string name="resumeButton">Resume game</string>
     <string name="loadAchievements">View achievements</string>

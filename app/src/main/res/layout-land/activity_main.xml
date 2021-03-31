@@ -16,13 +16,24 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:id="@+id/menuButton"
-        android:background="@color/colorAccent"
+        android:background="@color/ForestGreen"
         android:drawableTop="@drawable/baseline_menu_white_24dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         tools:ignore="MissingConstraints"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"/>
+        android:layout_marginRight="10dp" />
+    <Button
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@color/CornflowerBlue"
+        android:drawableTop="@android:drawable/ic_menu_preferences"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        app:layout_constraintTop_toBottomOf="@+id/menuButton"
+        android:id="@+id/settingsButton"
+        tools:ignore="MissingConstraints"/>
     <RelativeLayout
         android:id="@+id/dialogueBox"
         android:layout_height="200dp"

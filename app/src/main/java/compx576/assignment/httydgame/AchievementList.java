@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,8 +36,7 @@ public class AchievementList extends AppCompatActivity {
         GameRepository repo = new GameRepository();
 
         // Get all achievements, and store them in a list for the ListAdapter below
-        List<Achievement> originalAchievementList = repo.getAchievements(getApplicationContext());
-        achievementList.addAll(originalAchievementList);
+        achievementList = getIntent().getParcelableArrayListExtra("aList");
 
         // Initialise the ListAdapter class, and setup the view for it
         ListAdapter adapter = new ListAdapter(this, achievementList);

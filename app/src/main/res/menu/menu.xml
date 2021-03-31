@@ -2,8 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/option_1"
-        android:title="@string/placeholder" />
+        android:title="@string/saveGame" />
     <item
         android:id="@+id/option_2"
-        android:title="@string/todo" />
+        android:title="@string/returnToMain" />
+    <item
+        android:id="@+id/menuCancel"
+        android:title="@string/exitButton"/>
 </menu>

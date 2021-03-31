@@ -5,11 +5,12 @@ android {
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "compx576.assignment.httydgame"
+        applicationId 'compx576.assignment.httydgame'
         minSdkVersion 16
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -32,12 +33,13 @@ configurations {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
+
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'com.google.code.gson:gson:2.8.5'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
-
+    implementation 'com.android.support:multidex:1.0.3'
 
     implementation "android.arch.persistence.room:runtime:$rootProject.roomVersion"
     annotationProcessor "android.arch.persistence.room:compiler:$rootProject.roomVersion"
@@ -47,4 +49,6 @@ dependencies {
     //noinspection LifecycleAnnotationProcessorWithJava8
     annotationProcessor "android.arch.lifecycle:compiler:$rootProject.archLifecycleVersion"
 
+    apply plugin: 'com.android.application'
+    apply plugin: 'io.objectbox'
 }

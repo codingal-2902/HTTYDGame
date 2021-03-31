@@ -1,22 +1,43 @@
 package compx576.assignment.httydgame;
 
-import androidx.room.ColumnInfo;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 // Define the table name as 'achievements'
-@Entity(tableName = "achievements")
-public class Achievement {
+public class Achievement implements Parcelable {
 
     // Specify some columns in the table
-    @PrimaryKey
     private int id;
-    @ColumnInfo(name = "achievementName")
     private String name;
     private String description;
     private String multiplier;
-    @ColumnInfo(name = "isUnlocked")
     private boolean isUnlocked;
+
+    public static final Creator<Achievement> CREATOR = new Creator<Achievement>() {
+        @Override
+        public Achievement createFromParcel(Parcel in) {
+            return new Achievement(in);
+        }
+
+        @Override
+        public Achievement[] newArray(int size) {
+            return new Achievement[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
+        parcel.writeString(name);
+        parcel.writeString(description);
+        parcel.writeString(multiplier);
+        parcel.writeByte((byte) (isUnlocked ? 1 : 0));
+    }
 
     // Class constructor
     public Achievement(int id, String name, String description, String multiplier, boolean isUnlocked) {
@@ -25,6 +46,14 @@ public class Achievement {
         this.description = description;
         this.multiplier = multiplier;
         this.isUnlocked = isUnlocked;
+    }
+
+    protected Achievement(Parcel in) {
+        id = in.readInt();
+        name = in.readString();
+        description = in.readString();
+        multiplier = in.readString();
+        isUnlocked = in.readByte() != 0;
     }
 
     // Getters and setters for class attributes
